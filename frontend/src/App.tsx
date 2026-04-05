@@ -200,13 +200,14 @@ export default function App() {
       {/* Floating AI Orb */}
       <motion.div 
         className={`ai-orb ${isListening ? 'ai-orb-pulse' : ''}`}
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.1, rotate: 15 }}
         whileTap={{ scale: 0.9 }}
-        onClick={() => setIsListening(!isListening)}
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        title="AI Assistant (Strategic Insights)"
       >
         <div className="ai-orb-inner"></div>
-        <div style={{ position: 'absolute', color: 'white' }}>
-          <Sparkles size={40} />
+        <div style={{ position: 'absolute', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Sparkles size={32} />
         </div>
       </motion.div>
       

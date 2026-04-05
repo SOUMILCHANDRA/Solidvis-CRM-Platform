@@ -262,27 +262,31 @@ body {
 }
 
 .ai-orb {
-  width: 120px;
-  height: 120px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #00d2ff, #9b59b6);
-  box-shadow: 0 0 40px rgba(0, 210, 255, 0.4), inset 0 0 20px rgba(255,255,255,0.4);
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.4), inset 0 0 15px rgba(255,255,255,0.4);
   position: fixed;
-  bottom: 40px;
-  right: 40px;
+  bottom: 30px;
+  right: 30px;
   z-index: 1000;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .ai-orb-inner {
   width: 100%;
   height: 100%;
-  background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.1) 10px, rgba(255, 255, 255, 0.1) 20px);
-  animation: orb-rotate 10s linear infinite;
+  position: absolute;
+  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: orb-rotate 5s linear infinite;
+  border-radius: 50%;
 }
 
 @keyframes orb-rotate {

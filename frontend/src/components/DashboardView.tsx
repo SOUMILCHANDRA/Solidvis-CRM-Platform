@@ -38,6 +38,8 @@ export default function DashboardView() {
   ]);
   const [loading, setLoading] = useState(true);
 
+  const [timelineData, setTimelineData] = useState([]);
+
   useEffect(() => {
     const fetchLiveStats = async () => {
       try {
@@ -45,6 +47,13 @@ export default function DashboardView() {
         const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
         const { count: invoiceCount } = await supabase.from('invoice').select('*', { count: 'exact', head: true });
         
+        // Fetch last 5 invoices for timeline
+        const { data: recentInvoices } = await supabase
+          .from('invoice')
+          .select('*, company(company_name)')
+          .order('created_at', { ascending: false })
+          .limit(5);
+
         const estimatedRevenue = (invoiceCount || 0) * 118000;
 
         setStats([
@@ -53,6 +62,21 @@ export default function DashboardView() {
           { title: 'Registered Companies', value: companyCount || 0, icon: <Users size={24} color="#2ecc71" />, prefix: '' },
           { title: 'Total Invoices', value: invoiceCount || 0, icon: <FileText size={24} color="#f1c40f" />, prefix: '' },
         ]);
+
+        if (recentInvoices) {
+          setTimelineData(recentInvoices.map(inv => ({
+            children: (
+              <div>
+                <div style={{ fontWeight: 600 }}>{inv.company?.company_name || 'System'} Action</div>
+                <div style={{ fontSize: '12px', color: '#aaa' }}>
+                  Invoice #{inv.invoice_id.substring(0, 8)}: {inv.invoice_status}
+                </div>
+              </div>
+            ),
+            label: new Date(inv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            color: inv.invoice_status === 'UNPAID' ? 'red' : 'blue'
+          })));
+        }
       } catch (error) {
         console.error("Error fetching live data", error);
       } finally {
@@ -140,10 +164,8 @@ export default function DashboardView() {
           {loading ? <Skeleton active /> : (
             <Timeline 
               theme="dark"
-              items={[
-                { children: 'Order PO_X9282 Processed', label: '10:45 AM' },
-                { children: 'Payment RECEIVED from BELRISE IND', label: '09:30 AM' },
-                { children: 'Manual Audit Required for INV_892', color: 'red', label: 'Yesterday' },
+              items={timelineData.length > 0 ? timelineData : [
+                { children: 'Awaiting first operations update...', label: 'NOW' },
               ]}
             />
           )}
