@@ -3,10 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
   Building2, 
-  ShoppingCart, 
+  ShoppingBag, 
   Receipt,
   Mic,
-  MicOff 
+  MicOff,
+  Settings,
+  Search,
+  Bell,
+  Sun,
+  Moon,
+  Sparkles 
 } from 'lucide-react';
 import { message } from 'antd';
 import './index.css';
@@ -61,6 +67,19 @@ export default function App() {
   const [isListening, setIsListening] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const searchInput = document.querySelector('input[placeholder*="Search by ID"]') as HTMLInputElement;
+            if (searchInput) searchInput.focus();
+        }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -172,9 +191,22 @@ export default function App() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', position: 'relative' }}>
+    <div className={`app-container ${theme}`} style={{ display: 'flex', minHeight: '100vh', position: 'relative' }}>
       <FloatingParticles />
       <MouseAura />
+
+      {/* Floating AI Orb */}
+      <motion.div 
+        className={`ai-orb ${isListening ? 'ai-orb-pulse' : ''}`}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setIsListening(!isListening)}
+      >
+        <div className="ai-orb-inner"></div>
+        <div style={{ position: 'absolute', color: 'white' }}>
+          <Sparkles size={40} />
+        </div>
+      </motion.div>
       
       {/* Sidebar */}
       <motion.div 
@@ -244,13 +276,14 @@ export default function App() {
 
           <button 
             className="glass-panel"
-            onClick={() => supabase.auth.signOut()}
+            onClick={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
             style={{ 
               border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', 
-              width: '100%', color: '#ffb84d', background: 'rgba(243, 156, 18, 0.1)', marginTop: '15px'
+              width: '100%', color: theme === 'dark' ? '#f1c40f' : '#f39c12', background: 'rgba(241, 196, 15, 0.1)', marginTop: '10px'
             }}
           >
-            Logout Network
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
           </button>
         </div>
       </motion.div>
