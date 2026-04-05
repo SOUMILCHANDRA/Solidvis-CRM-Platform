@@ -7,23 +7,26 @@ import { DollarSign, ShoppingBag, Users, FileText, TrendingUp, Clock, Activity }
 import { supabase } from '../lib/supabase';
 import { Skeleton, Timeline } from 'antd';
 
-// Animated Counter Component
+// Animated Counter Component optimized for 500k+ records
 const AnimatedCounter = ({ value }: { value: number }) => {
   const [count, setCount] = useState(0);
   useEffect(() => {
+    if (value === 0) return;
     let start = 0;
     const end = value;
-    if (start === end) return;
-    let totalMiliseconds = 1500;
-    let incrementTime = (totalMiliseconds / end) * 5;
+    const duration = 1000; // 1 second total
+    const increment = Math.ceil(end / 60); // 60 frames
+    const stepTime = Math.abs(Math.floor(duration / 60));
+    
     let timer = setInterval(() => {
-      start += 5;
-      setCount(start);
-      if (start > end) {
-        clearInterval(timer);
+      start += increment;
+      if (start >= end) {
         setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(start);
       }
-    }, incrementTime);
+    }, stepTime);
     return () => clearInterval(timer);
   }, [value]);
   return <span>{count.toLocaleString()}</span>;
@@ -49,8 +52,8 @@ export default function DashboardView() {
           supabase.from('orders').select('*', { count: 'planned', head: true }),
           supabase.from('invoice').select('*', { count: 'planned', head: true }),
           supabase.from('invoice')
-            .select('*, company(company_name)')
-            .order('created_at', { ascending: false })
+            .select('*, orders(company(company_name))')
+            .order('invoice_date', { ascending: false })
             .limit(5)
         ]);
 
@@ -72,13 +75,13 @@ export default function DashboardView() {
           setTimelineData(recentInvoices.map(inv => ({
             children: (
               <div>
-                <div style={{ fontWeight: 600 }}>{inv.company?.company_name || 'System'} Action</div>
+                <div style={{ fontWeight: 600 }}>{inv.orders?.company?.company_name || 'System'} Action</div>
                 <div style={{ fontSize: '11px', color: '#aaa' }}>
                   INV#{inv.invoice_id.substring(0, 8)} Updated • <strong>{inv.invoice_status}</strong>
                 </div>
               </div>
             ),
-            label: new Date(inv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            label: new Date(inv.invoice_date).toLocaleDateString([], { month: 'short', day: 'numeric' }),
             color: inv.invoice_status === 'UNPAID' ? 'red' : 'green'
           })));
         }
