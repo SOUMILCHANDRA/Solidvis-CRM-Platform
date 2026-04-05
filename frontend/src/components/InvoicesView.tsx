@@ -38,7 +38,7 @@ export default function InvoicesView() {
             return {
                 key: inv.invoice_id,
                 order: inv.order_id,
-                amount: parseFloat(inv.total_amount),
+                amount: parseFloat(inv.total_amount || 0),
                 date: inv.invoice_date,
                 status: paymentStatus
             };
@@ -121,8 +121,11 @@ export default function InvoicesView() {
 
         <motion.div className="glass-panel" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
           {loading ? (
-             <div style={{ padding: '100px', textAlign: 'center', color: '#00d2ff' }}>
-               <Spin size="large" /> <p style={{ marginTop: '15px' }}>Fetching Latest Invoices...</p>
+             <div style={{ padding: '20px' }}>
+               {[...Array(8)].map((_, i) => (
+                 <div key={i} className="skeleton" style={{ height: '40px', marginBottom: '10px', opacity: 1 - (i * 0.1) }} />
+               ))}
+               <p style={{ marginTop: '15px', color: '#00d2ff', textAlign: 'center' }}>Optimizing query of 2M+ rows...</p>
              </div>
           ) : (
              <Table 

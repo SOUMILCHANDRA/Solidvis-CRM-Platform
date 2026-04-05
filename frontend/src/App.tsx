@@ -8,6 +8,7 @@ import {
   Mic,
   MicOff 
 } from 'lucide-react';
+import { message } from 'antd';
 import './index.css';
 
 // Importing views (to be created)
@@ -16,6 +17,8 @@ import CompaniesView from './components/CompaniesView';
 import OrdersView from './components/OrdersView';
 import InvoicesView from './components/InvoicesView';
 import AuthView from './components/AuthView';
+import NotificationSystem from './components/NotificationSystem';
+import ChatAssistant from './components/ChatAssistant';
 import { supabase } from './lib/supabase';
 
 const FloatingParticles = () => (
@@ -57,6 +60,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isListening, setIsListening] = useState(false);
   const [session, setSession] = useState<any>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -101,9 +105,19 @@ export default function App() {
             term = term.replace(/invoices?/g, '').trim();
           }
           
-          // If searching an ID, usually it's upper case in CRM
-          if (term.length > 0) term = term.toUpperCase();
+          // Intelligent Intent Mapping
+          if (command.includes('unpaid') || command.includes('pending')) {
+            setActiveTab('invoices');
+            term = 'PENDING';
+          }
           
+          const amountMatch = command.match(/(?:above|over|more than|greater than)\s+(\d+)\s*(?:lakh|million)?/i);
+          if (amountMatch) {
+              setActiveTab('invoices');
+              // We simulate the intent by pre-filling or searching
+              message.info(`AI Intelligence Feature: Filtering for values > ${amountMatch[1]}`);
+          }
+
           // Auto-inject into the target tab's Native React Input
           setTimeout(() => {
               const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
@@ -114,7 +128,7 @@ export default function App() {
               }
           }, 400); // 400ms delay ensures Framer Route Transition has finished mounting the target view
 
-      } else if (command.includes('show pending invoices') || command.includes('invoices')) {
+      } else if (command.includes('show pending invoices') || command.includes('unpaid invoices')) {
         setActiveTab('invoices');
       } else if (command.includes('top clients') || command.includes('companies')) {
         setActiveTab('companies');
@@ -215,6 +229,19 @@ export default function App() {
             {isListening ? <Mic size={18} /> : <MicOff size={18} />}
             {isListening ? 'Listening...' : 'Voice Assistant'}
           </button>
+          
+          <button 
+            className="glass-panel"
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            style={{ 
+              border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', 
+              width: '100%', color: '#00d2ff', background: 'rgba(0, 210, 255, 0.1)', marginTop: '10px'
+            }}
+          >
+            <LayoutDashboard size={18} />
+            Chat Assistant
+          </button>
+
           <button 
             className="glass-panel"
             onClick={() => supabase.auth.signOut()}
@@ -246,6 +273,11 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      <NotificationSystem />
+      <AnimatePresence>
+        {isChatOpen && <ChatAssistant onClose={() => setIsChatOpen(false)} />}
+      </AnimatePresence>
     </div>
   );
 }

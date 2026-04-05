@@ -57,3 +57,10 @@ INSERT INTO PAYMENT (invoice_id, payment_date, payment_mode, amount_paid, paymen
 ('2025-26/015', '2025-09-02', 'ONLINE', 1416000, 'PENDING'),
 ('2024-25/150', '2025-10-06', 'ONLINE', 531000, 'RECEIVED'),
 ('2025-26/050', '2024-12-08', 'ONLINE', 2065000, 'PENDING');
+
+-- RBAC Initial Data (Assuming some user IDs from auth.users exist or using the current user if possible)
+-- For demonstration, we create a trigger or a function to assign roles automatically if not present
+-- But for a simple insert, we can use a placeholder
+INSERT INTO USER_ROLE (user_id, role, full_name)
+SELECT id, 'Admin', 'Master Admin' FROM auth.users LIMIT 1;
+

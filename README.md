@@ -21,6 +21,8 @@
 - **📦 Orders & Products** — Create orders with full product bifurcation, auto-linked pricing, and real-time total bill calculation
 - **🧾 Invoices & Payments** — Browse 2M+ invoice records with debounced search, optimized for zero timeout
 - **🎙️ Voice Assistant** — AI-powered voice navigation and search across all tabs (say *"Search for order 157849"* or *"Find client TCS"*)
+- **💬 AI Chat Assistant** — Interactive AI Navigator that can query live revenue, client data, and enterprise metrics via natural language
+- **🔔 Intelligence Feed** — Real-time notification system for live dashboard updates, predictive alerts, and system events
 - **🖱️ Reactive Mouse Aura** — Premium interactive background that tracks cursor movement
 - **✨ Glassmorphism UI** — Premium dark-mode design with Framer Motion animations and micro-interactions
 
@@ -79,10 +81,9 @@ The app will be available at `http://localhost:5173`
 
 Run the SQL files in the root of this repository against your Supabase project in this order:
 
-1. `crm_schema_setup.sql` — Creates all tables (COMPANY, ORDERS, PRODUCT, INVOICE, PAYMENT, etc.)
-2. `supabase_schema.sql` — Additional schema configurations
-3. `supabase_inserts.sql` — Seed data inserts
-4. `supabase_massive_data.sql` — Large-scale data generation
+1. `supabase_master_setup.sql` — Recommended master setup script (includes all tables + RBAC schema)
+2. `supabase_inserts.sql` — Seed data inserts
+3. `supabase_massive_data.sql` — Large-scale dummy data generation (~500k-2M records)
 
 ---
 
@@ -122,20 +123,21 @@ Solidvis-CRM-Platform/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── AuthView.tsx        # Login / Register screen
-│   │   │   ├── DashboardView.tsx   # KPI charts & stats
-│   │   │   ├── CompaniesView.tsx   # Client company browser
-│   │   │   ├── OrdersView.tsx      # Orders + product bifurcation
-│   │   │   └── InvoicesView.tsx    # Invoice & payment tracker
+│   │   │   ├── AuthView.tsx          # Login / Register screen
+│   │   │   ├── DashboardView.tsx     # KPI charts & stats
+│   │   │   ├── CompaniesView.tsx     # Client company browser
+│   │   │   ├── OrdersView.tsx        # Orders + product bifurcation
+│   │   │   ├── InvoicesView.tsx      # Invoice & payment tracker
+│   │   │   ├── ChatAssistant.tsx     # AI Navigator chat interface
+│   │   │   └── NotificationSystem.tsx # Live Intelligence Feed UI
 │   │   ├── lib/
-│   │   │   └── supabase.ts         # Supabase client init
-│   │   ├── App.tsx                 # Root app + voice assistant
-│   │   └── index.css               # Glassmorphism design system
+│   │   │   └── supabase.ts           # Supabase client init
+│   │   ├── App.tsx                   # Main layout + voice assistant
+│   │   └── index.css                 # Glassmorphism design system
 │   └── index.html
-├── crm_schema_setup.sql
-├── supabase_schema.sql
-├── supabase_inserts.sql
-└── supabase_massive_data.sql
+├── supabase_master_setup.sql        # Master database schema script
+├── supabase_inserts.sql             # Enterprise seed data
+└── supabase_massive_data.sql        # Massive dummy data generator
 ```
 
 ---

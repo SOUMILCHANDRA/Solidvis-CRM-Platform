@@ -10,25 +10,30 @@ export default function AuthView({ setSession }: { setSession: any }) {
     
     const handleAuth = async (values: any) => {
         setLoading(true);
-        if (isSignUp) {
-            const { error } = await supabase.auth.signUp({
-                email: values.email,
-                password: values.password
-            });
-            if (error) message.error(error.message);
-            else message.success('Provisioning sequence completed. You may now login securely.');
-        } else {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: values.email,
-                password: values.password
-            });
-            if (error) message.error(error.message);
-            else {
-                message.success('Authorization confirmed. Accessing Secure Dashboard.');
-                setSession(data.session);
+        try {
+            if (isSignUp) {
+                const { error } = await supabase.auth.signUp({
+                    email: values.email,
+                    password: values.password
+                });
+                if (error) message.error(error.message);
+                else message.success('Provisioning sequence completed. You may now login securely.');
+            } else {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: values.email,
+                    password: values.password
+                });
+                if (error) message.error(error.message);
+                else {
+                    message.success('Authorization confirmed. Accessing Secure Dashboard.');
+                    setSession(data.session);
+                }
             }
+        } catch (err: any) {
+            message.error(err.message || 'Network encryption failure. Please verify credentials.');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (

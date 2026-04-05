@@ -83,6 +83,7 @@ export default function DashboardView() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching live data", error);
+        setLoading(false);
       }
     };
 
@@ -120,7 +121,7 @@ export default function DashboardView() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginTop: '30px' }}>
         {/* Line Chart */}
         <motion.div 
           className="glass-panel"
@@ -140,34 +141,29 @@ export default function DashboardView() {
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Pie Chart */}
+        {/* Intelligence Activity Feed */}
         <motion.div 
           className="glass-panel"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-          style={{ height: '350px', display: 'flex', flexDirection: 'column' }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.6 }}
+          style={{ height: '350px', overflowY: 'auto' }}
         >
-          <h3 style={{ margin: '0 0 10px 0', color: '#ccc' }}>Live Payment Status</h3>
-          <div style={{ flex: 1 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={paymentData} innerRadius={60} outerRadius={90} paddingAngle={5} dataKey="value">
-                  {paymentData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} style={{ filter: `drop-shadow(0px 0px 8px ${entry.color})` }} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={{ background: 'rgba(0,0,0,0.8)' }} />
-              </PieChart>
-            </ResponsiveContainer>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+             <h3 style={{ margin: 0, color: '#ccc' }}>Intelligence Feed</h3>
+             <span className="skeleton" style={{ padding: '2px 8px', fontSize: '10px', color: '#00d2ff' }}>LIVE</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-            {paymentData.map((d, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#aaa' }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: d.color, boxShadow: `0 0 10px ${d.color}` }} />
-                {d.name} ({d.value}%)
-              </div>
-            ))}
+          <div className="timeline-item">
+            <div style={{ fontSize: '14px', fontWeight: 600 }}>Invoice #SO-9827 Updated</div>
+            <div style={{ fontSize: '12px', color: '#aaa' }}>Status changed to RECEIVED • 2 mins ago</div>
+          </div>
+          <div className="timeline-item">
+            <div style={{ fontSize: '14px', fontWeight: 600 }}>New Order PO_X9282 Created</div>
+            <div style={{ fontSize: '12px', color: '#aaa' }}>Contract: SOLIDWORKS SPTW • 15 mins ago</div>
+          </div>
+          <div className="timeline-item">
+            <div style={{ fontSize: '14px', fontWeight: 600 }}>Predictive Alert: Stock Warning</div>
+            <div style={{ fontSize: '12px', color: '#2ecc71' }}>Expected uptick in 3DEXPERIENCE demand next month</div>
           </div>
         </motion.div>
       </div>

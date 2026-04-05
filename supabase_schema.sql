@@ -101,3 +101,23 @@ CREATE TABLE LICENSE (
     CONSTRAINT fk_license_order_detail FOREIGN KEY (order_detail_id) 
         REFERENCES ORDER_DETAILS(order_detail_id) ON DELETE CASCADE
 );
+
+-- 3. Enterprise Tables (RBAC & Audit)
+CREATE TABLE USER_ROLE (
+    user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    role VARCHAR(50) DEFAULT 'Sales', -- Admin, Sales, Finance
+    full_name VARCHAR(255),
+    last_login TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE AUDIT_LOG (
+    log_id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id),
+    action TEXT NOT NULL,
+    table_name VARCHAR(100),
+    record_id VARCHAR(100),
+    old_data JSONB,
+    new_data JSONB,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+

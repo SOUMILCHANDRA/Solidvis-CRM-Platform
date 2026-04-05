@@ -171,7 +171,14 @@ export default function OrdersView() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.05 }}
-            whileHover={{ y: -5, scale: 1.03, cursor: 'pointer', boxShadow: '0 10px 30px rgba(0,210,255,0.2)' }}
+            whileHover={{ 
+              y: -5, 
+              scale: 1.03, 
+              cursor: 'pointer', 
+              boxShadow: '0 20px 40px rgba(0,210,255,0.25)',
+              rotateX: 4,
+              rotateY: 4
+            }}
             onClick={() => loadOrderDetails(order.id)}
             style={{ position: 'relative', overflow: 'hidden', border: selectedOrder === order.id ? '1px solid #00d2ff' : '' }}
           >
