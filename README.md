@@ -12,14 +12,18 @@
 
 ---
 
-## 📸 Platform Demonstration
+## 🖼️ Platform Showcase (Visual Proof)
 
-![SolidVis Dashboard Intelligence Feed](./assets/dashboard_demo.png)
+| 🖥️ Command Center Dashboard | 🏢 Corporate CRM Registry |
+|---|---|
+| ![Dashboard](./assets/dashboard_main.png) | ![Companies](./assets/companies_list.png) |
 
-### 🎥 Interaction Highlights
-- **Dashboard Analytics**: Real-time KPI counters with 0-lag updates.
-- **AI Navigator Search**: Strategic natural language querying for "Top 5 Clients" or "Risky Debtors."
-- **Invoice Filtering**: Sub-second result retrieval across 500k+ records using debounced search.
+| 📦 Orders & Products Grid | 🧾 Financial Pulse Tracker |
+|---|---|
+| ![Orders](./assets/orders_grid.png) | ![Invoices](./assets/invoices_tracker.png) |
+
+> **Enterprise Bifurcation**: The system supports complex order creation with auto-linked product metadata and real-time invoice projection.
+> ![Order Creation](./assets/order_modal.png)
 
 ---
 
