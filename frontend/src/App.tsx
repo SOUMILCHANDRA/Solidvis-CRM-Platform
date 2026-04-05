@@ -120,6 +120,12 @@ export default function App() {
         setActiveTab('companies');
       } else if (command.includes('dashboard') || command.includes('home')) {
         setActiveTab('dashboard');
+      } else if (command.includes('add order') || command.includes('create order') || command.includes('new order')) {
+        setActiveTab('orders');
+        setTimeout(() => {
+            const createBtn = document.getElementById('create-order-btn');
+            if (createBtn) createBtn.click();
+        }, 500);
       } else if (command.includes('orders')) {
         setActiveTab('orders');
       }

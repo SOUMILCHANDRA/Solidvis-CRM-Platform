@@ -146,6 +146,7 @@ export default function OrdersView() {
                 onChange={e => setSearchTerm(e.target.value)}
             />
             <Button 
+                id="create-order-btn"
                 type="primary" 
                 icon={<Plus size={16} />} 
                 onClick={openNewOrderModal}

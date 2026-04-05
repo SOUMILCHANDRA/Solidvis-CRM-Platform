@@ -111,6 +111,7 @@ Make sure to add your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in your V
 | *"Find order [ID]"* | Navigate to Orders and search |
 | *"Find client [name]"* | Navigate to Companies and search |
 | *"Search invoice [ID]"* | Navigate to Invoices and search |
+| *"Add order"* | Navigate to Orders and open New Order modal |
 
 ---
 
