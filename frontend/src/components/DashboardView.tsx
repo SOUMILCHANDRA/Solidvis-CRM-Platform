@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+// @ts-ignore
 import { DollarSign, ShoppingCart, Users, FileText, TrendingUp, Clock, Activity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Skeleton, Timeline } from 'antd';
