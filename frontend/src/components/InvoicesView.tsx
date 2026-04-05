@@ -24,65 +24,73 @@ export default function InvoicesView() {
   useEffect(() => {
     const fetchInvoices = async () => {
       setLoading(true);
-      
-      let query = supabase
-        .from('invoice')
-        .select('invoice_id, order_id, total_amount, invoice_date, payment(payment_status)')
-        .limit(100);
+      try {
+        let query = supabase
+          .from('invoice')
+          .select(`
+            invoice_id,
+            total_amount,
+            invoice_date,
+            order_id,
+            payment (
+                payment_status
+            )
+          `)
+          .order('invoice_date', { ascending: false })
+          .limit(100);
 
-      if (searchTerm) {
-        query = query.ilike('invoice_id', `%${searchTerm}%`);
-      }
+        if (searchTerm) {
+          query = query.ilike('invoice_id', `%${searchTerm}%`);
+        }
 
-      if (statusFilter !== 'ALL') {
-         query = query.eq('payment.payment_status', statusFilter);
-         // Note: For complex join filtering in Supabase, we might need a RPC or specific filter syntax
-         // But for simplicity in this demo, let's assume a view or handle it in map
-      }
+        if (minAmount) query = query.gte('total_amount', minAmount);
+        if (maxAmount) query = query.lte('total_amount', maxAmount);
+        if (dateRange) {
+            query = query.gte('invoice_date', dateRange[0]).lte('invoice_date', dateRange[1]);
+        }
 
-      if (minAmount) query = query.gte('total_amount', minAmount);
-      if (maxAmount) query = query.lte('total_amount', maxAmount);
-      if (dateRange) {
-          query = query.gte('invoice_date', dateRange[0]).lte('invoice_date', dateRange[1]);
-      }
-
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error("Supabase Error fetching invoices:", error);
-      }
-      
-      if (!error && data) {
-        const formattedInvoices = data.map(inv => {
-            // @ts-ignore
-            const paymentStatus = inv.payment && inv.payment.length > 0 ? inv.payment[0].payment_status : 'PENDING';
-            return {
-                key: inv.invoice_id,
-                order: inv.order_id,
-                amount: parseFloat(inv.total_amount || 0),
-                date: inv.invoice_date,
-                status: paymentStatus
-            };
-        });
+        const { data, error } = await query;
         
+        if (error) {
+          console.error("Supabase Error fetching invoices:", error);
+        }
+        
+        let formattedInvoices = [];
+        if (data) {
+          formattedInvoices = data.map(inv => {
+              const paymentObj = Array.isArray(inv.payment) ? inv.payment[0] : inv.payment;
+              const paymentStatus = paymentObj?.payment_status || 'PENDING';
+              
+              return {
+                  key: inv.invoice_id,
+                  order: inv.order_id,
+                  amount: parseFloat(inv.total_amount || 0),
+                  date: inv.invoice_date,
+                  status: paymentStatus
+              };
+          });
+        }
+        
+        // Handle the status filter client-side for consistent behavior across joins
+        let finalInvoices = formattedInvoices;
+        if (statusFilter !== 'ALL') {
+            finalInvoices = formattedInvoices.filter(i => i.status === statusFilter);
+        }
+        
+        setInvoices(finalInvoices);
+        
+        // Update local chart preview
+        if (!searchTerm && statusFilter === 'ALL') {
+            setChartData([
+                { name: 'Received', value: formattedInvoices.filter(i => i.status === 'RECEIVED').reduce((acc, curr) => acc + curr.amount, 0), color: '#2ecc71' },
+                { name: 'Pending', value: formattedInvoices.filter(i => i.status === 'PENDING').reduce((acc, curr) => acc + curr.amount, 0), color: '#e74c3c' },
+            ]);
+        }
+      } catch (err) {
+        console.error("Critical error in fetchInvoices:", err);
+      } finally {
+        setLoading(false);
       }
-      
-      // Handle the complex status filter client-side if needed (due to join depth)
-      let finalInvoices = formattedInvoices;
-      if (statusFilter !== 'ALL') {
-          finalInvoices = formattedInvoices.filter(i => i.status === statusFilter);
-      }
-      
-      setInvoices(finalInvoices);
-      
-      // Update local chart preview
-      if (!searchTerm && statusFilter === 'ALL') {
-          setChartData([
-              { name: 'Received', value: formattedInvoices.filter(i => i.status === 'RECEIVED').reduce((acc, curr) => acc + curr.amount, 0), color: '#2ecc71' },
-              { name: 'Pending', value: formattedInvoices.filter(i => i.status === 'PENDING').reduce((acc, curr) => acc + curr.amount, 0), color: '#e74c3c' },
-          ]);
-      }
-      setLoading(false);
     };
 
     const delayDebounceFn = setTimeout(() => {
