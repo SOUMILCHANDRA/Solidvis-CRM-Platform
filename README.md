@@ -51,12 +51,13 @@ graph TD
 - **📦 Orders & Products** — Create orders with full product bifurcation, auto-linked pricing, and real-time total bill calculation
 - **🧾 Invoices & Payments** — Browse 2M+ invoice records with debounced search, optimized for zero timeout
 - **🎙️ Voice Assistant** — AI-powered voice navigation and search across all tabs
-- **💬 AI Chat Navigator** — **Decision Making AI** that identifies "Risky Invoices," "Top 5 Clients," and performs revenue trajectory analysis via natural language
+- **💬 AI Chat Navigator** — **Strategic Decision AI** that identifies "Risky Invoices," "Top 5 Clients," and performs revenue trajectory analysis via natural language through a relocated pulsing **AI Orb**
+- **🧾 Global Intelligence Feed** — **Real-time Operations Timeline** that dynamically fetches and displays the latest invoice events, status updates, and enterprise actions from the Supabase cloud
 - **🛠️ Advanced Export System** — Enterprise-ready **PDF report generation** and **CSV data portability** for all dashboard records
-- **🔍 Multi-Level Filters** — Deep-search 500,000+ records by **Status (Pending/Received)**, **Amount Range**, and **Date Range** with 0-lag performance
-- **🔔 Intelligence Feed** — Real-time notification system for live dashboard updates and predictive alerts
+- **🔍 High-Performance Multi-Filters** — Deep-search 500,000+ records by **Status (Pending/Received)**, **Amount Range**, and **Date Range** with sub-second responsiveness
+- **🔋 Optimized Telemetry** — Persistent, high-speed **Animated Counters** engineered for massive scale (incrementing 500k+ metrics in 1s)
 - **🖱️ Reactive Mouse Aura** — Premium interactive background that tracks cursor movement
-- **✨ Glassmorphism UI** — Premium dark-mode design with Framer Motion animations
+- **✨ Glassmorphism UI** — Premium dark-mode design with Framer Motion animations and **unobstructed visual hierarchy**
 
 ---
 
