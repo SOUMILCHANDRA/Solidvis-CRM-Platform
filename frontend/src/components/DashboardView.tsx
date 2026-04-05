@@ -74,15 +74,17 @@ export default function DashboardView() {
         if (recentInvoices) {
           setTimelineData(recentInvoices.map(inv => ({
             children: (
-              <div>
-                <div style={{ fontWeight: 600 }}>{inv.orders?.company?.company_name || 'System'} Action</div>
-                <div style={{ fontSize: '11px', color: '#aaa' }}>
+              <div style={{ marginBottom: '8px' }}>
+                <div style={{ fontWeight: 700, color: '#fff', fontSize: '13px', lineHeight: '1.4' }}>
+                    {inv.orders?.company?.company_name || 'System Network'}
+                </div>
+                <div style={{ fontSize: '11px', color: '#00d2ff', marginTop: '2px', fontWeight: 500 }}>
                   INV#{inv.invoice_id.substring(0, 8)} Updated • <strong>{inv.invoice_status}</strong>
                 </div>
               </div>
             ),
-            label: new Date(inv.invoice_date).toLocaleDateString([], { month: 'short', day: 'numeric' }),
-            color: inv.invoice_status === 'UNPAID' ? 'red' : 'green'
+            label: <span style={{ color: '#aaa', fontSize: '11px' }}>{new Date(inv.invoice_date).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>,
+            color: inv.invoice_status === 'UNPAID' ? '#ff4d4f' : '#52c41a'
           })));
         }
       } catch (error) {
