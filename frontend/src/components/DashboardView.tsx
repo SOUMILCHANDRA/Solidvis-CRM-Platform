@@ -43,16 +43,21 @@ export default function DashboardView() {
   useEffect(() => {
     const fetchLiveStats = async () => {
       try {
-        const { count: companyCount } = await supabase.from('company').select('*', { count: 'exact', head: true });
-        const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-        const { count: invoiceCount } = await supabase.from('invoice').select('*', { count: 'exact', head: true });
-        
-        // Fetch last 5 invoices for timeline
-        const { data: recentInvoices } = await supabase
-          .from('invoice')
-          .select('*, company(company_name)')
-          .order('created_at', { ascending: false })
-          .limit(5);
+        // Parallel fetching for performance vs large tables
+        const [ companiesRes, ordersRes, invoicesRes, timelineRes ] = await Promise.all([
+          supabase.from('company').select('*', { count: 'planned', head: true }),
+          supabase.from('orders').select('*', { count: 'planned', head: true }),
+          supabase.from('invoice').select('*', { count: 'planned', head: true }),
+          supabase.from('invoice')
+            .select('*, company(company_name)')
+            .order('created_at', { ascending: false })
+            .limit(5)
+        ]);
+
+        const { count: companyCount } = companiesRes;
+        const { count: ordersCount } = ordersRes;
+        const { count: invoiceCount } = invoicesRes;
+        const { data: recentInvoices } = timelineRes;
 
         const estimatedRevenue = (invoiceCount || 0) * 118000;
 
@@ -68,17 +73,17 @@ export default function DashboardView() {
             children: (
               <div>
                 <div style={{ fontWeight: 600 }}>{inv.company?.company_name || 'System'} Action</div>
-                <div style={{ fontSize: '12px', color: '#aaa' }}>
-                  Invoice #{inv.invoice_id.substring(0, 8)}: {inv.invoice_status}
+                <div style={{ fontSize: '11px', color: '#aaa' }}>
+                  INV#{inv.invoice_id.substring(0, 8)} Updated • <strong>{inv.invoice_status}</strong>
                 </div>
               </div>
             ),
             label: new Date(inv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            color: inv.invoice_status === 'UNPAID' ? 'red' : 'blue'
+            color: inv.invoice_status === 'UNPAID' ? 'red' : 'green'
           })));
         }
       } catch (error) {
-        console.error("Error fetching live data", error);
+        console.error("Critical Dashboard Telemetry Error:", error);
       } finally {
         setLoading(false);
       }
