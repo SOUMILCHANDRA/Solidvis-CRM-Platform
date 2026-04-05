@@ -50,11 +50,13 @@ graph TD
 - **🏢 CRM / Companies** — Search and browse all registered client companies from cloud database
 - **📦 Orders & Products** — Create orders with full product bifurcation, auto-linked pricing, and real-time total bill calculation
 - **🧾 Invoices & Payments** — Browse 2M+ invoice records with debounced search, optimized for zero timeout
-- **🎙️ Voice Assistant** — AI-powered voice navigation and search across all tabs (say *"Search for order 157849"* or *"Find client TCS"*)
-- **💬 AI Chat Assistant** — Interactive AI Navigator that can query live revenue, client data, and enterprise metrics via natural language
-- **🔔 Intelligence Feed** — Real-time notification system for live dashboard updates, predictive alerts, and system events
+- **🎙️ Voice Assistant** — AI-powered voice navigation and search across all tabs
+- **💬 AI Chat Navigator** — **Decision Making AI** that identifies "Risky Invoices," "Top 5 Clients," and performs revenue trajectory analysis via natural language
+- **🛠️ Advanced Export System** — Enterprise-ready **PDF report generation** and **CSV data portability** for all dashboard records
+- **🔍 Multi-Level Filters** — Deep-search 500,000+ records by **Status (Pending/Received)**, **Amount Range**, and **Date Range** with 0-lag performance
+- **🔔 Intelligence Feed** — Real-time notification system for live dashboard updates and predictive alerts
 - **🖱️ Reactive Mouse Aura** — Premium interactive background that tracks cursor movement
-- **✨ Glassmorphism UI** — Premium dark-mode design with Framer Motion animations and micro-interactions
+- **✨ Glassmorphism UI** — Premium dark-mode design with Framer Motion animations
 
 ---
 

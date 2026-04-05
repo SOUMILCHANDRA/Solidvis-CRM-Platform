@@ -40,9 +40,13 @@ export default function ChatAssistant({ onClose }: { onClose: () => void }) {
       let response = "I'm analyzing the database for that information...";
       const query = input.toLowerCase();
 
-      if (query.includes('order') || query.includes('sales')) {
-        const { count } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-        response = `Our network currently manages ${count?.toLocaleString()} active orders across all client nodes.`;
+      if (query.includes('top') && query.includes('client')) {
+         const { data: topClients } = await supabase.from('company').select('company_name, orders(count)').limit(5); 
+         response = "Based on recent telemetry, our top 5 partners by transaction volume are: " + 
+                    (topClients?.map(c => c.company_name).join(', ') || "pending calculation...") + ".";
+      } else if (query.includes('risk') || query.includes('pending')) {
+         const { count } = await supabase.from('payment').select('*', { count: 'exact', head: true }).eq('payment_status', 'PENDING');
+         response = `I've flagged ${count} invoices as 'High Risk' due to pending payment status. I recommend immediate follow-up via Finance operations.`;
       } else if (query.includes('revenue') || query.includes('money')) {
         const { count } = await supabase.from('invoice').select('*', { count: 'exact', head: true });
         const revenue = (count || 0) * 118000;

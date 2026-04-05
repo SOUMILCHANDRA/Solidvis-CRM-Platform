@@ -1,16 +1,25 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Table, Tag, Input, Spin } from 'antd';
+import { Table, Tag, Input, Spin, Button, Select, InputNumber } from 'antd';
+const { Option } = Select;
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Search } from 'lucide-react';
+import { Search, Download, FileText, Filter } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 export default function InvoicesView() {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Advanced Filter States
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [minAmount, setMinAmount] = useState<number | undefined>(undefined);
+  const [maxAmount, setMaxAmount] = useState<number | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<[string, string] | null>(null);
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -23,6 +32,18 @@ export default function InvoicesView() {
 
       if (searchTerm) {
         query = query.ilike('invoice_id', `%${searchTerm}%`);
+      }
+
+      if (statusFilter !== 'ALL') {
+         query = query.eq('payment.payment_status', statusFilter);
+         // Note: For complex join filtering in Supabase, we might need a RPC or specific filter syntax
+         // But for simplicity in this demo, let's assume a view or handle it in map
+      }
+
+      if (minAmount) query = query.gte('total_amount', minAmount);
+      if (maxAmount) query = query.lte('total_amount', maxAmount);
+      if (dateRange) {
+          query = query.gte('invoice_date', dateRange[0]).lte('invoice_date', dateRange[1]);
       }
 
       const { data, error } = await query;
@@ -44,15 +65,22 @@ export default function InvoicesView() {
             };
         });
         
-        setInvoices(formattedInvoices);
-        
-        // Update local chart preview
-        if (!searchTerm) {
-            setChartData([
-                { name: 'Received', value: formattedInvoices.filter(i => i.status === 'RECEIVED').reduce((acc, curr) => acc + curr.amount, 0), color: '#2ecc71' },
-                { name: 'Pending', value: formattedInvoices.filter(i => i.status === 'PENDING').reduce((acc, curr) => acc + curr.amount, 0), color: '#e74c3c' },
-            ]);
-        }
+      }
+      
+      // Handle the complex status filter client-side if needed (due to join depth)
+      let finalInvoices = formattedInvoices;
+      if (statusFilter !== 'ALL') {
+          finalInvoices = formattedInvoices.filter(i => i.status === statusFilter);
+      }
+      
+      setInvoices(finalInvoices);
+      
+      // Update local chart preview
+      if (!searchTerm && statusFilter === 'ALL') {
+          setChartData([
+              { name: 'Received', value: formattedInvoices.filter(i => i.status === 'RECEIVED').reduce((acc, curr) => acc + curr.amount, 0), color: '#2ecc71' },
+              { name: 'Pending', value: formattedInvoices.filter(i => i.status === 'PENDING').reduce((acc, curr) => acc + curr.amount, 0), color: '#e74c3c' },
+          ]);
       }
       setLoading(false);
     };
@@ -62,7 +90,42 @@ export default function InvoicesView() {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm]);
+  }, [searchTerm, statusFilter, minAmount, maxAmount, dateRange]);
+
+  const exportCSV = () => {
+    const headers = ['Invoice ID', 'Order ID', 'Amount', 'Date', 'Status'];
+    const rows = invoices.map(i => [i.key, i.order, i.amount, i.date, i.status]);
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(",") + "\n"
+      + rows.map(e => e.join(",")).join("\n");
+      
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `invoices_export_${new Date().getTime()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportPDF = () => {
+    // @ts-ignore
+    const doc = new jsPDF();
+    doc.text("SolidVis Enterprise CRM - Invoices Report", 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
+    
+    // @ts-ignore
+    doc.autoTable({
+      startY: 30,
+      head: [['Invoice ID', 'Order ID', 'Amount (INR)', 'Date', 'Status']],
+      body: invoices.map(i => [i.key, i.order, `INR ${i.amount.toLocaleString()}`, i.date, i.status]),
+      theme: 'grid',
+      headStyles: { fillStyle: '#9b59b6' }
+    });
+    
+    doc.save(`invoices_report_${new Date().getTime()}.pdf`);
+  };
 
   const columns = [
     { title: 'Invoice ID', dataIndex: 'key', key: 'key' },
@@ -88,12 +151,49 @@ export default function InvoicesView() {
     <div style={{ paddingBottom: '40px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <h1 className="glow-text" style={{ fontSize: '32px', margin: 0 }}>Invoice & Payment Tracker</h1>
-        <Input 
-            prefix={<Search size={18} color="#aaa" />}
-            placeholder="Search Invoice ID..."
-            style={{ width: '250px', background: 'rgba(0,0,0,0.5)', borderColor: 'rgba(255,255,255,0.1)', color: 'white', borderRadius: '20px' }}
-            onChange={e => setSearchTerm(e.target.value)}
-        />
+        <div style={{ display: 'flex', gap: '15px' }}>
+            <Button icon={<FileText size={16} />} onClick={exportCSV} style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>CSV</Button>
+            <Button icon={<Download size={16} />} onClick={exportPDF} style={{ background: 'rgba(255,255,255,0.05)', color: '#00d2ff', border: '1px solid rgba(0,210,255,0.1)' }}>Export PDF</Button>
+            <Input 
+                prefix={<Search size={18} color="#aaa" />}
+                placeholder="Search Invoice ID..."
+                style={{ width: '250px', background: 'rgba(0,0,0,0.5)', borderColor: 'rgba(255,255,255,0.1)', color: 'white', borderRadius: '20px' }}
+                onChange={e => setSearchTerm(e.target.value)}
+            />
+        </div>
+      </div>
+
+      <div style={{ padding: '15px', background: 'rgba(255,255,255,0.02)', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '25px', display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#aaa', fontSize: '12px' }}>
+              <Filter size={14} /> FILTERS:
+          </div>
+          <Select 
+            defaultValue="ALL" 
+            style={{ width: 150 }} 
+            onChange={setStatusFilter}
+            popupClassName="dark-dropdown"
+          >
+              <Option value="ALL">All Statuses</Option>
+              <Option value="RECEIVED">Received Only</Option>
+              <Option value="PENDING">Pending Only</Option>
+          </Select>
+          
+          <div style={{ display: 'flex', gap: '10px' }}>
+              <InputNumber 
+                placeholder="Min Amount" 
+                onChange={val => setMinAmount(val || undefined)} 
+                style={{ width: '120px' }}
+              />
+              <InputNumber 
+                placeholder="Max Amount" 
+                onChange={val => setMaxAmount(val || undefined)} 
+                style={{ width: '120px' }}
+              />
+          </div>
+          
+          <div style={{ color: '#00d2ff', fontSize: '11px', flex: 1, textAlign: 'right' }}>
+              {invoices.length} Enterprise Records Filtered
+          </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '24px' }}>
