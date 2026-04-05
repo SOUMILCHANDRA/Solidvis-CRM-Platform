@@ -64,20 +64,82 @@ const MouseAura = () => {
     return <div id="mouse-aura" style={{ left: '-1000px', top: '-1000px' }} />;
 };
 
+// Global Search Modal Component
+const GlobalSearch = ({ isOpen, onClose, navigate }: { isOpen: boolean, onClose: () => void, navigate: (t: string) => void }) => {
+  const [query, setQuery] = useState('');
+  
+  if (!isOpen) return null;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}
+      onClick={onClose}
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+        style={{ width: '600px', background: '#1a1b1e', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <Search color="#00d2ff" size={24} />
+          <input 
+            autoFocus
+            placeholder="Search enterprise network (Companies, Invoices, Orders)..."
+            style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', fontSize: '18px', outline: 'none' }}
+            onChange={e => setQuery(e.target.value)}
+          />
+          <div style={{ fontSize: '10px', color: '#444', border: '1px solid #444', padding: '2px 6px', borderRadius: '4px' }}>ESC</div>
+        </div>
+        <div style={{ padding: '10px', maxHeight: '400px', overflowY: 'auto' }}>
+          {query ? (
+              <div style={{ padding: '20px', color: '#aaa', textAlign: 'center' }}>
+                Searching 2M+ records for <strong style={{ color: '#00d2ff' }}>"{query}"</strong>...
+              </div>
+          ) : (
+            <div style={{ padding: '10px' }}>
+              <div style={{ fontSize: '12px', color: '#555', marginBottom: '10px', marginLeft: '10px' }}>QUICK NAVIGATION</div>
+              {[
+                { label: 'View Dashboard Metrics', tab: 'dashboard', icon: <TrendingUp size={16} /> },
+                { label: 'Analyze Revenue Invoices', tab: 'invoices', icon: <FileText size={16} /> },
+                { label: 'Corporate Client Registry', tab: 'companies', icon: <Users size={16} /> }
+              ].map((item, i) => (
+                <div 
+                  key={i}
+                  className="search-result-item" 
+                  onClick={() => { navigate(item.tab); onClose(); }}
+                  style={{ padding: '12px 15px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px', color: '#ccc', transition: 'all 0.2s' }}
+                >
+                   {item.icon} {item.label}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isListening, setIsListening] = useState(false);
-  const [session, setSession] = useState<any>(null);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [session, setSession] = useState<any>(null);
 
+  // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-            e.preventDefault();
-            const searchInput = document.querySelector('input[placeholder*="Search by ID"]') as HTMLInputElement;
-            if (searchInput) searchInput.focus();
-        }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+      if (e.key === 'Escape') {
+        setIsSearchOpen(false);
+        setIsChatOpen(false);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -197,17 +259,19 @@ export default function App() {
       <FloatingParticles />
       <MouseAura />
 
-      {/* Floating AI Orb */}
+      <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} navigate={setActiveTab} />
+
+      {/* Iconic AI Orb Portal */}
       <motion.div 
-        className={`ai-orb ${isListening ? 'ai-orb-pulse' : ''}`}
-        whileHover={{ scale: 1.1, rotate: 15 }}
+        className={`ai-orb ${isChatOpen ? 'ai-orb-pulse' : ''}`}
+        whileHover={{ scale: 1.15, rotate: 15 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsChatOpen(!isChatOpen)}
-        title="AI Assistant (Strategic Insights)"
+        title="AI Strategic Advisor (Strategic Insights)"
       >
         <div className="ai-orb-inner"></div>
         <div style={{ position: 'absolute', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Sparkles size={32} />
+          <Sparkles size={40} />
         </div>
       </motion.div>
       

@@ -136,45 +136,81 @@ export default function DashboardView() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) 1fr 1fr', gap: '24px', marginBottom: '30px' }}>
+        {/* Holographic Revenue Chart */}
         <motion.div 
            initial={{ opacity: 0, scale: 0.95 }}
            animate={{ opacity: 1, scale: 1 }}
-           className="glass-panel" 
+           className="glass-panel holographic-card" 
            style={{ padding: '24px', minHeight: '300px' }}
         >
           <h3 style={{ color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <TrendingUp color="#00d2ff" size={20} /> Revenue Trajectory Analysis
+            <TrendingUp color="#00d2ff" size={20} /> Revenue Trajectory
           </h3>
           {loading ? <Skeleton active paragraph={{ rows: 6 }} /> : (
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={dataForChart}>
                 <XAxis dataKey="name" stroke="#555" fontSize={12} />
                 <YAxis stroke="#555" fontSize={12} />
-                <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid #333' }} />
-                <Line type="monotone" dataKey="revenue" stroke="#00d2ff" strokeWidth={3} dot={{ r: 4, fill: '#00d2ff' }} activeDot={{ r: 8 }} />
+                <Tooltip 
+                  contentStyle={{ background: 'rgba(26, 26, 26, 0.9)', border: '1px solid #333', borderRadius: '12px', backdropFilter: 'blur(10px)' }}
+                  itemStyle={{ color: '#00d2ff' }}
+                />
+                <Line type="monotone" dataKey="revenue" stroke="#00d2ff" strokeWidth={4} dot={{ r: 6, fill: '#00d2ff', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 10, shadow: '0 0 20px #00d2ff' }} />
               </LineChart>
             </ResponsiveContainer>
           )}
         </motion.div>
 
+        {/* AI Strategic Insights (Auto-Insights) */}
+        <motion.div 
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.2 }}
+           className="glass-panel" 
+           style={{ padding: '24px', borderTop: '2px solid #9b59b6' }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <h3 style={{ margin: 0, color: '#fff', fontSize: '16px' }}>🧠 Strategic Intelligence</h3>
+            <Activity size={18} color="#9b59b6" />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+             <div className="insight-row pulse-red">
+                <span style={{ color: '#ff4d4f' }}>⚠️ 12 Invoices Overdue</span>
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#aaa' }}>Potential cashflow risk detected.</p>
+             </div>
+             <div className="insight-row">
+                <span style={{ color: '#52c41a' }}>🔥 Top Client: TCS</span>
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#aaa' }}>Contribution high (INR 12.4 Cr).</p>
+             </div>
+             <div className="insight-row">
+                <span style={{ color: '#00d2ff' }}>📈 Growth Streak +14%</span>
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#aaa' }}>Outperforming Q1 target benchmarks.</p>
+             </div>
+          </div>
+        </motion.div>
+
+        {/* Intelligence Feed */}
         <motion.div 
            initial={{ opacity: 0, x: 20 }}
            animate={{ opacity: 1, x: 0 }}
            transition={{ delay: 0.3 }}
            className="glass-panel" 
-           style={{ padding: '28px', borderLeft: '2px solid rgba(0, 210, 255, 0.3)' }}
+           style={{ padding: '28px', borderLeft: '2px solid rgba(0, 210, 255, 0.3)', overflowY: 'auto', maxHeight: '400px' }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-             <h3 style={{ margin: 0, color: '#fff', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px' }}>
-                <Clock color="#00d2ff" size={22} /> Global Intelligence Feed
+             <h3 style={{ margin: 0, color: '#fff', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '16px' }}>
+                <Clock color="#00d2ff" size={20} /> Latest Operations
              </h3>
-             <span className="pulse-badge" style={{ padding: '3px 10px', fontSize: '10px', color: '#00d2ff', border: '1px solid #00d2ff', borderRadius: '4px', fontWeight: 700 }}>LIVE</span>
+             <span className="pulse-badge" style={{ padding: '3px 10px', fontSize: '10px', color: '#00d2ff', border: '1px solid #00d2ff', borderRadius: '4px' }}>LIVE</span>
           </div>
           {loading ? <Skeleton active /> : (
             <Timeline 
               theme="dark"
-              items={timelineData.length > 0 ? timelineData : [
+              items={timelineData.length > 0 ? [
+                { children: <div style={{ fontSize: '10px', color: '#00d2ff', fontWeight: 600, marginBottom: '10px' }}>TODAY</div>, dot: <Activity size={12} /> },
+                ...timelineData
+              ] : [
                 { children: 'Awaiting first operations update...', label: 'NOW' },
               ]}
             />
