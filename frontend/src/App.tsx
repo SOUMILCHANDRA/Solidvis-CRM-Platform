@@ -177,7 +177,7 @@ export default function App() {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'companies', label: 'CRM / Companies', icon: <Building2 size={20} /> },
-    { id: 'orders', label: 'Orders & Products', icon: <ShoppingCart size={20} /> },
+    { id: 'orders', label: 'Orders & Products', icon: <ShoppingBag size={20} /> },
     { id: 'invoices', label: 'Invoices & Payments', icon: <Receipt size={20} /> },
   ];
 
