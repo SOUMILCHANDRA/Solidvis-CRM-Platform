@@ -161,13 +161,13 @@ export default function DashboardView() {
            animate={{ opacity: 1, x: 0 }}
            transition={{ delay: 0.3 }}
            className="glass-panel" 
-           style={{ padding: '24px' }}
+           style={{ padding: '28px', borderLeft: '2px solid rgba(0, 210, 255, 0.3)' }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-             <h3 style={{ margin: 0, color: '#ccc', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Clock color="#9b59b6" size={20} /> Operations Timeline
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+             <h3 style={{ margin: 0, color: '#fff', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px' }}>
+                <Clock color="#00d2ff" size={22} /> Global Intelligence Feed
              </h3>
-             <span style={{ padding: '2px 8px', fontSize: '10px', color: '#00d2ff', border: '1px solid #00d2ff', borderRadius: '4px' }}>LIVE</span>
+             <span className="pulse-badge" style={{ padding: '3px 10px', fontSize: '10px', color: '#00d2ff', border: '1px solid #00d2ff', borderRadius: '4px', fontWeight: 700 }}>LIVE</span>
           </div>
           {loading ? <Skeleton active /> : (
             <Timeline 
