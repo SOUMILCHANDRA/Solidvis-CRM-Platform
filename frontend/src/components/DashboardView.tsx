@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 // @ts-ignore
-import { DollarSign, ShoppingCart, Users, FileText, TrendingUp, Clock, Activity } from 'lucide-react';
+import { DollarSign, ShoppingBag, Users, FileText, TrendingUp, Clock, Activity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Skeleton, Timeline } from 'antd';
 
@@ -32,7 +32,7 @@ const AnimatedCounter = ({ value }: { value: number }) => {
 export default function DashboardView() {
   const [stats, setStats] = useState([
     { title: 'Total Revenue', value: 0, icon: <DollarSign size={24} color="#00d2ff" />, prefix: '₹' },
-    { title: 'Total Orders', value: 0, icon: <ShoppingCart size={24} color="#9b59b6" />, prefix: '' },
+    { title: 'Total Orders', value: 0, icon: <ShoppingBag size={24} color="#9b59b6" />, prefix: '' },
     { title: 'Registered Companies', value: 0, icon: <Users size={24} color="#2ecc71" />, prefix: '' },
     { title: 'Total Invoices', value: 0, icon: <FileText size={24} color="#f1c40f" />, prefix: '' },
   ]);
@@ -49,7 +49,7 @@ export default function DashboardView() {
 
         setStats([
           { title: 'Total Revenue', value: estimatedRevenue, icon: <DollarSign size={24} color="#00d2ff" />, prefix: '₹' },
-          { title: 'Total Orders', value: ordersCount || 0, icon: <ShoppingCart size={24} color="#9b59b6" />, prefix: '' },
+          { title: 'Total Orders', value: ordersCount || 0, icon: <ShoppingBag size={24} color="#9b59b6" />, prefix: '' },
           { title: 'Registered Companies', value: companyCount || 0, icon: <Users size={24} color="#2ecc71" />, prefix: '' },
           { title: 'Total Invoices', value: invoiceCount || 0, icon: <FileText size={24} color="#f1c40f" />, prefix: '' },
         ]);
