@@ -14,7 +14,10 @@ import {
   Bell,
   Sun,
   Moon,
-  Sparkles 
+  Sparkles,
+  TrendingUp,
+  FileText,
+  Users 
 } from 'lucide-react';
 import { message } from 'antd';
 import './index.css';
