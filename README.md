@@ -10,6 +10,10 @@
 
 > **"A scalable CRM platform handling large datasets (500k+) with real-time analytics, AI-assisted querying, and optimized database design for sub-second performance."**
 
+📖 **Detailed Documentation:**
+- [🚀 Comprehensive Features List (A-Z)](./FEATURES_LIST.md)
+- [💻 Professional Technology Stack](./TECH_STACK.md)
+
 ---
 
 ## 🖼️ Platform Showcase (Visual Proof)
