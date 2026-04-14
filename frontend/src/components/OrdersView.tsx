@@ -94,41 +94,24 @@ export default function OrdersView() {
 
   const handleCreateOrder = async (values: any) => {
     setFormLoading(true);
-    const newOrderId = `PO_NEW_${Math.floor(Math.random() * 1000000)}`;
     
-    // 1. Insert Core Order
-    const { error: orderError } = await supabase.from('orders').insert({
-        order_id: newOrderId,
-        company_id: values.company_id,
-        employee_id: values.employee_id,
-        order_type: values.order_type,
-        status: values.status,
-        order_date: new Date().toISOString().split('T')[0]
+    // Calculate total amount from products
+    const currentProductsList = values.products || [];
+    const totalBill = currentProductsList.reduce((sum: number, p: any) => sum + (Number(p?.price) || 0), 0);
+
+    // Replace direct insert with RPC
+    const { data, error } = await supabase.rpc('create_order_transaction', {
+        comp_id: values.company_id,
+        amt: totalBill > 0 ? totalBill : 0
     });
 
-    if (orderError) {
-        message.error(`Order Registration Failed: ${orderError.message}`);
+    if (error) {
+        message.error(`Transaction failed, rollback triggered: ${error.message}`);
         setFormLoading(false);
         return;
     }
 
-    // 2. Insert Order Details (Bifurcation products)
-    if (values.products && values.products.length > 0) {
-        const detailsToInsert = values.products.map((p: any) => ({
-             order_id: newOrderId,
-             product_id: p.product_id,
-             quantity: p.quantity,
-             selling_price: p.price
-        }));
-
-        const { error: detailError } = await supabase.from('order_details').insert(detailsToInsert);
-        
-        if (detailError) {
-            message.warning(`Order created but product details failed to attach: ${detailError.message}`);
-        }
-    }
-
-    message.success(`Order ${newOrderId} successfully created globally with linked products!`);
+    message.success(`Order + Invoice created successfully via Atomic Transaction!`);
     setIsModalVisible(false);
     form.resetFields();
     fetchOrders(); // Refresh table instantly
