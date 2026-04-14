@@ -22,14 +22,25 @@ VALUES
 ('Priya Mehta', 'Account Manager', 'priya@solidvis.com')
 ON CONFLICT DO NOTHING;
 
--- 4. Adapt Orders table to support UUID Representatives
--- This allows the 'team_members' table to link to 'orders'
+-- 4. Adapt Orders table to support UUID Representatives (Migration)
 DO $$ 
 BEGIN 
+  -- 1. Drop existing foreign key pointing to the old 'EMPLOYEE' table
+  IF EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_order_employee' AND table_name = 'orders') THEN
+    ALTER TABLE orders DROP CONSTRAINT fk_order_employee;
+  END IF;
+
+  -- 2. Change column type to UUID
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'employee_id' AND data_type = 'integer') THEN
     ALTER TABLE orders ALTER COLUMN employee_id TYPE UUID USING NULL; 
   END IF;
+
+  -- 3. Add NEW foreign key pointing to 'team_members'
+  IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_order_team' AND table_name = 'orders') THEN
+    ALTER TABLE orders ADD CONSTRAINT fk_order_team FOREIGN KEY (employee_id) REFERENCES team_members(id) ON DELETE SET NULL;
+  END IF;
 END $$;
+
 
 -- 5. Atomic Transaction Function (Passes rep_id)
 CREATE OR REPLACE FUNCTION create_order_transaction(
