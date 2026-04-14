@@ -310,7 +310,6 @@ export default function OrdersView() {
                                     >
                                         <InputNumber 
                                             placeholder="Qty" 
-                                            min={1} 
                                             onChange={(qtyValue) => {
                                                 const currentProducts = form.getFieldValue('products') || [];
                                                 const prodId = currentProducts[name]?.product_id;
@@ -364,7 +363,6 @@ export default function OrdersView() {
                                     <InputNumber 
                                         placeholder="Enter custom amount" 
                                         style={{ width: '100%' }} 
-                                        min={1}
                                         value={overrideAmount}
                                         onChange={setOverrideAmount}
                                     />
