@@ -119,4 +119,4 @@ This project includes a comprehensive academic extension exploring advanced data
 
 ---
 
-*Built for high-stakes enterprise B2B by SolidVis Engineering.*
+*Built for high-stakes enterprise B2B by Soumil Chandra.*
