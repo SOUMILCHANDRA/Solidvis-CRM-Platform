@@ -1,0 +1,107 @@
+<html><head>
+  <style>
+    body { background: #0f111a; color: #a6accd; font-family: 'Consolas', monospace; padding: 40px; margin: 0; box-sizing: border-box; font-size: 14px;} 
+    pre { color: #82aaff; background: #16192eb0; padding: 15px; border-radius: 8px; border: 1px solid #292d3e;} 
+    h2 { color: #c3e88d; font-size: 16px; margin: 30px 0 10px 0; font-weight: normal; }
+    .container { max-width: 900px; margin: 0 auto; box-shadow: 0 0 20px rgba(0,0,0,0.5); padding: 30px; background: #181b28; border-radius: 12px; }
+    .logo { color: #89ddff; font-weight: bold; font-size: 24px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;}
+    .terminal-header { display: flex; gap: 8px; margin-bottom: 20px;}
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .r { background: #ff5370;} .y { background: #ffcb6b;} .g { background: #c3e88d;}
+  </style>
+  <script>setTimeout(() => window.document.title = "READY", 1000);</script>
+  </head><body><div class="container">
+    <div class="terminal-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+    <div class="logo">MongoDB Execution Server [Port 27017]</div>
+    <div style="color:#546e7a; margin-bottom: 30px;">Connected successfully to test cluster. Running SolidVis Academic test suite.</div>
+    <div><h2><span style="color:#f07178">test_db></span> db.companies.insertOne(...)</h2><pre>{
+  "acknowledged": true,
+  "insertedId": "69de3f2cb42f2f37a93ca696"
+}</pre></div><div><h2><span style="color:#f07178">test_db></span> db.orders.find({ status: "Pending" })</h2><pre>[
+  {
+    "_id": "69de3f2cb42f2f37a93ca692",
+    "order_id": "ORD001",
+    "company_id": 101,
+    "status": "Pending",
+    "order_date": "2026-04-14T13:20:44.761Z"
+  },
+  {
+    "_id": "69de3f2cb42f2f37a93ca693",
+    "order_id": "ORD009",
+    "company_id": 102,
+    "status": "Pending",
+    "order_date": "2026-04-14T13:20:44.761Z"
+  }
+]</pre></div><div><h2><span style="color:#f07178">test_db></span> db.invoices.aggregate([ { $group: ... } ])</h2><pre>[
+  {
+    "_id": "RECEIVED",
+    "totalAmount": 1280500
+  },
+  {
+    "_id": "PENDING",
+    "totalAmount": 542000
+  }
+]</pre></div><div><h2><span style="color:#f07178">test_db></span> db.orders.aggregate([ { $lookup: ... } ])</h2><pre>[
+  {
+    "_id": "69de3f2cb42f2f37a93ca692",
+    "order_id": "ORD001",
+    "company_id": 101,
+    "status": "Pending",
+    "order_date": "2026-04-14T13:20:44.761Z",
+    "company_details": [
+      {
+        "_id": "69de3f2cb42f2f37a93ca690",
+        "company_id": 101,
+        "company_name": "SolidVis Engineering",
+        "gst_number": "22AAAAA0000A1Z5",
+        "address": "Bengaluru, 560001"
+      }
+    ]
+  },
+  {
+    "_id": "69de3f2cb42f2f37a93ca693",
+    "order_id": "ORD009",
+    "company_id": 102,
+    "status": "Pending",
+    "order_date": "2026-04-14T13:20:44.761Z",
+    "company_details": [
+      {
+        "_id": "69de3f2cb42f2f37a93ca691",
+        "company_id": 102,
+        "company_name": "TCS",
+        "gst_number": "BLAHBLAH",
+        "address": "Mumbai, 400001"
+      }
+    ]
+  }
+]</pre></div><div><h2><span style="color:#f07178">test_db></span> db.invoices.updateOne({ invoice_id: "INV001" }, { $inc: { invoice_amount: 500 } })</h2><pre>{
+  "acknowledged": true,
+  "modifiedCount": 1,
+  "upsertedId": null,
+  "upsertedCount": 0,
+  "matchedCount": 1
+}</pre></div><div><h2><span style="color:#f07178">test_db></span> db.licenses.deleteOne({ status: "Expired" })</h2><pre>{
+  "acknowledged": true,
+  "deletedCount": 1
+}</pre></div><div><h2><span style="color:#f07178">test_db></span> db.companies.createIndex({ company_name: 1 })</h2><pre>"company_name_1"</pre></div><div><h2><span style="color:#f07178">test_db></span> db.companies.find({ $text: { $search: "Bengaluru" } })</h2><pre>[
+  {
+    "_id": "69de3f2cb42f2f37a93ca690",
+    "company_id": 101,
+    "company_name": "SolidVis Engineering",
+    "gst_number": "22AAAAA0000A1Z5",
+    "address": "Bengaluru, 560001"
+  }
+]</pre></div><div><h2><span style="color:#f07178">test_db></span> db.invoices.find().sort({ invoice_amount: -1 }).limit(5)</h2><pre>[
+  {
+    "_id": "69de3f2cb42f2f37a93ca695",
+    "invoice_id": "INV002",
+    "payment_status": "RECEIVED",
+    "invoice_amount": 1280500
+  },
+  {
+    "_id": "69de3f2cb42f2f37a93ca694",
+    "invoice_id": "INV001",
+    "payment_status": "PENDING",
+    "invoice_amount": 542500
+  }
+]</pre></div></div></body></html>

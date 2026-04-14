@@ -16,12 +16,14 @@ const EmployeesView = () => {
             const { data, error } = await supabase
                 .from('team_members')
                 .select('*')
-                .order('id', { ascending: false });
+                .order('name', { ascending: true });
             
-            if (error) throw error;
+            if (error) {
+                console.error("Team fetch error:", error);
+                throw error;
+            }
             setEmployees(data || []);
         } catch (error) {
-            console.error('Error fetching employees:', error);
             message.error('Failed to load sales representatives');
         } finally {
             setLoading(false);
@@ -45,14 +47,16 @@ const EmployeesView = () => {
                     }
                 ]);
 
-            if (error) throw error;
+            if (error) {
+                console.error("Employee add error:", error);
+                throw error;
+            }
 
             message.success('New Sales Representative added successfully!');
             setIsModalVisible(false);
             form.resetFields();
             fetchEmployees();
         } catch (error: any) {
-            console.error('Error adding employee:', error);
             message.error(error.message || 'Failed to add sales representative');
         } finally {
             setLoading(false);
@@ -102,7 +106,7 @@ const EmployeesView = () => {
             title: 'Internal ID',
             dataIndex: 'id',
             key: 'id',
-            render: (id: number) => <Tag color="#333">REP-{id}</Tag>
+            render: (id: string) => <Tag color="#333">REP-{id.slice(0, 8)}...</Tag>
         },
         {
             title: 'Action',
