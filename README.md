@@ -102,3 +102,18 @@ npm run dev
 Soumil Chandra
 Full Stack & Data Visualization Engineer
 
+---
+
+## 📚 DBMS Academic Extension
+
+This project includes a comprehensive academic extension exploring advanced database management system concepts:
+- **Transaction Management**: Real-world implementation using PostgreSQL (Supabase RPC) with full ACID compliance and rollback handling.
+- **Serializability**: Theoretical and practical analysis of Conflict and View Serializability in concurrent systems.
+- **NoSQL Integration**: MongoDB schema design patterns (Embedding vs. Referencing) and complex aggregation queries.
+- **Paradigm Comparison**: Detailed trade-off analysis between SQL (PostgreSQL) and NoSQL (MongoDB).
+
+📂 **Detailed Documentation & Implementation artifacts can be found in [/docs/dbms](./docs/dbms)**
+
+---
+
+*Built for high-stakes enterprise B2B by SolidVis Engineering.*
