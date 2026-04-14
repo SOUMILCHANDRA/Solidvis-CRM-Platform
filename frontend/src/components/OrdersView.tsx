@@ -97,12 +97,13 @@ export default function OrdersView() {
   };
 
   const handleCreateOrder = async (values: any) => {
-    // Validation
+    // Validation (Step 5)
     const currentProductsList = values.products || [];
     const calculatedTotal = currentProductsList.reduce((sum: number, p: any) => sum + (Number(p?.price) || 0), 0);
-    const finalAmount = useOverride ? (overrideAmount || 0) : calculatedTotal;
+    const finalAmount = Number(useOverride ? overrideAmount : calculatedTotal);
 
-    if (!values.company_id || !values.employee_id || finalAmount <= 0) {
+    if (!values.company_id || !values.employee_id || !finalAmount || finalAmount <= 0) {
+        alert("Amount must be greater than 0");
         message.warning("Please ensure Company, Sales Rep are selected and Amount is > 0");
         return;
     }

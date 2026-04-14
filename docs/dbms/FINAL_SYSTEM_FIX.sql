@@ -15,11 +15,16 @@ ALTER TABLE team_members ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public Full Access" ON team_members;
 CREATE POLICY "Public Full Access" ON team_members FOR ALL USING (true) WITH CHECK (true);
 
--- 3. Seed initial representatives
+-- 3. Seed expanded representative list
 INSERT INTO team_members (name, role, email)
 VALUES
-('Rahul Sharma', 'Sales Rep', 'rahul@solidvis.com'),
-('Priya Mehta', 'Account Manager', 'priya@solidvis.com')
+('Rahul Sharma', 'Regional Sales Manager', 'rahul@solidvis.com'),
+('Priya Mehta', 'Account Executive', 'priya@solidvis.com'),
+('Aman Verma', 'Senior Sales Engineer', 'aman@solidvis.com'),
+('Simran Kaur', 'Channel Partner Manager', 'simran@solidvis.com'),
+('Vikram Singh', 'Enterprise Solutions Lead', 'vikram@solidvis.com'),
+('Ananya Gupta', 'Sales Coordinator', 'ananya@solidvis.com'),
+('Siddharth Malhotra', 'Business Development Rep', 'siddharth@solidvis.com')
 ON CONFLICT DO NOTHING;
 
 -- 4. Adapt Orders table to support UUID Representatives (Migration)
@@ -42,11 +47,11 @@ BEGIN
 END $$;
 
 
--- 5. Atomic Transaction Function (Schema Aligned)
+-- 5. Atomic Transaction Function (STRICT VALIDATION)
 CREATE OR REPLACE FUNCTION create_order_transaction(
     comp_id BIGINT,
     rep_id UUID,
-    amt NUMERIC
+    amt NUMERIC NOT NULL
 )
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -56,12 +61,18 @@ DECLARE
     gen_invoice_id VARCHAR(50);
     tax_calc NUMERIC;
 BEGIN
-    IF amt <= 0 THEN RAISE EXCEPTION 'Amount must be greater than zero'; END IF;
+    -- DEBUG LOGGING
+    RAISE NOTICE 'Transaction amount received: %', amt;
+
+    -- STRICT VALIDATION (STEP 1 & 3)
+    IF amt IS NULL OR amt <= 0 THEN
+        RAISE EXCEPTION 'Invalid transaction amount. Must be greater than zero.';
+    END IF;
 
     -- Generate IDs matching VARCHAR(50) pattern
     gen_order_id := 'ORD-' || upper(substring(gen_random_uuid()::text from 1 for 8));
     gen_invoice_id := 'INV-' || upper(substring(gen_random_uuid()::text from 1 for 8));
-    tax_calc := amt * 0.18; -- Assume 18% standard tax for the platform
+    tax_calc := (amt * 0.18); -- 18% standard tax
 
     -- 1. Insert into ORDERS table
     INSERT INTO orders (order_id, company_id, employee_id, order_type, status, order_date)
@@ -73,6 +84,7 @@ BEGIN
 
     RETURN 'SUCCESS: ' || gen_order_id;
 EXCEPTION
-    WHEN OTHERS THEN RAISE EXCEPTION 'TRANSACTION FAILED: %', SQLERRM;
+    WHEN OTHERS THEN 
+        RAISE EXCEPTION 'TRANSACTION FAILED: %', SQLERRM;
 END;
 $$;
