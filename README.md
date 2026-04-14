@@ -54,10 +54,12 @@ It focuses on **performance, scalability, and responsiveness**, ensuring smooth 
 ## 🧠 Key Features
 
 * 📇 Customer & company management
+* 👥 **Team Management**: Dedicated module to manage enterprise sales representatives.
 * 📊 Sales and order tracking
 * ⚡ Real-time updates across users
 * 📈 Financial monitoring (invoices & revenue)
 * 🔍 High-performance filtering on large datasets
+* 🛡️ **Transaction Console**: Integrated UI for real-time testing of database atomicity.
 
 ---
 
@@ -107,10 +109,11 @@ Full Stack & Data Visualization Engineer
 ## 📚 DBMS Academic Extension
 
 This project includes a comprehensive academic extension exploring advanced database management system concepts:
-- **Transaction Management**: Real-world implementation using PostgreSQL (Supabase RPC) with full ACID compliance and rollback handling.
+- **Transaction Management**: Real-world implementation using PostgreSQL (Supabase RPC) with full ACID compliance and rollback handling, accessible via the **Txn Console** in the app.
 - **Serializability**: Theoretical and practical analysis of Conflict and View Serializability in concurrent systems.
 - **NoSQL Integration**: MongoDB schema design patterns (Embedding vs. Referencing) and complex aggregation queries.
 - **Paradigm Comparison**: Detailed trade-off analysis between SQL (PostgreSQL) and NoSQL (MongoDB).
+- **Core Feature**: Integrated **Team Management** module for sales force automation.
 
 📂 **Detailed Documentation & Implementation artifacts can be found in [/docs/dbms](./docs/dbms)**
 
