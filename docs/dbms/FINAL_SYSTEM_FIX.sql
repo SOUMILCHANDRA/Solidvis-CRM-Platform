@@ -53,7 +53,7 @@ END $$;
 CREATE OR REPLACE FUNCTION create_order_transaction(
     comp_id BIGINT,
     rep_id UUID,
-    amt NUMERIC NOT NULL
+    amt NUMERIC
 )
 RETURNS TEXT
 LANGUAGE plpgsql
