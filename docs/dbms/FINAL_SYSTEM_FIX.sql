@@ -42,7 +42,7 @@ BEGIN
 END $$;
 
 
--- 5. Atomic Transaction Function (Passes rep_id)
+-- 5. Atomic Transaction Function (Schema Aligned)
 CREATE OR REPLACE FUNCTION create_order_transaction(
     comp_id BIGINT,
     rep_id UUID,
@@ -52,18 +52,26 @@ RETURNS TEXT
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    new_order_id UUID;
+    gen_order_id VARCHAR(50);
+    gen_invoice_id VARCHAR(50);
+    tax_calc NUMERIC;
 BEGIN
     IF amt <= 0 THEN RAISE EXCEPTION 'Amount must be greater than zero'; END IF;
 
-    INSERT INTO orders (company_id, employee_id, total_amount, created_at)
-    VALUES (comp_id, rep_id, amt, NOW())
-    RETURNING id INTO new_order_id;
+    -- Generate IDs matching VARCHAR(50) pattern
+    gen_order_id := 'ORD-' || upper(substring(gen_random_uuid()::text from 1 for 8));
+    gen_invoice_id := 'INV-' || upper(substring(gen_random_uuid()::text from 1 for 8));
+    tax_calc := amt * 0.18; -- Assume 18% standard tax for the platform
 
-    INSERT INTO invoices (order_id, amount, issued_date)
-    VALUES (new_order_id, amt, NOW());
+    -- 1. Insert into ORDERS table
+    INSERT INTO orders (order_id, company_id, employee_id, order_type, status, order_date)
+    VALUES (gen_order_id, comp_id, rep_id, 'Transactional', 'Active', CURRENT_DATE);
 
-    RETURN 'TRANSACTION SUCCESS';
+    -- 2. Insert into INVOICE table
+    INSERT INTO invoice (invoice_id, order_id, invoice_amount, tax_amount, total_amount, invoice_date)
+    VALUES (gen_invoice_id, gen_order_id, amt, tax_calc, amt + tax_calc, CURRENT_DATE);
+
+    RETURN 'SUCCESS: ' || gen_order_id;
 EXCEPTION
     WHEN OTHERS THEN RAISE EXCEPTION 'TRANSACTION FAILED: %', SQLERRM;
 END;
