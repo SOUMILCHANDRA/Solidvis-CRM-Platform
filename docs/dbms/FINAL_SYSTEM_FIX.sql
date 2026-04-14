@@ -53,7 +53,8 @@ END $$;
 CREATE OR REPLACE FUNCTION create_order_transaction(
     comp_id BIGINT,
     rep_id UUID,
-    amt NUMERIC
+    amt NUMERIC,
+    line_items JSONB -- Added to handle products
 )
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -62,13 +63,18 @@ DECLARE
     gen_order_id VARCHAR(50);
     gen_invoice_id VARCHAR(50);
     tax_calc NUMERIC;
+    item JSONB;
 BEGIN
     -- DEBUG LOGGING
-    RAISE NOTICE 'Transaction amount received: %', amt;
+    RAISE NOTICE 'Transaction amount received: %, Items count: %', amt, jsonb_array_length(line_items);
 
-    -- STRICT VALIDATION (STEP 1 & 3)
+    -- STRICT VALIDATION
     IF amt IS NULL OR amt <= 0 THEN
         RAISE EXCEPTION 'Invalid transaction amount. Must be greater than zero.';
+    END IF;
+
+    IF line_items IS NULL OR jsonb_array_length(line_items) = 0 THEN
+        RAISE EXCEPTION 'Order must contain at least one product.';
     END IF;
 
     -- Generate IDs matching VARCHAR(50) pattern
@@ -80,7 +86,19 @@ BEGIN
     INSERT INTO orders (order_id, company_id, employee_id, order_type, status, order_date)
     VALUES (gen_order_id, comp_id, rep_id, 'Transactional', 'Active', CURRENT_DATE);
 
-    -- 2. Insert into INVOICE table
+    -- 2. Insert into ORDER_DETAILS (Loop through products)
+    FOR item IN SELECT * FROM jsonb_array_elements(line_items)
+    LOOP
+        INSERT INTO order_details (order_id, product_id, quantity, selling_price)
+        VALUES (
+            gen_order_id, 
+            (item->>'product_id')::VARCHAR, 
+            (item->>'quantity')::INT, 
+            (item->>'price')::DECIMAL
+        );
+    END LOOP;
+
+    -- 3. Insert into INVOICE table
     INSERT INTO invoice (invoice_id, order_id, invoice_amount, tax_amount, total_amount, invoice_date)
     VALUES (gen_invoice_id, gen_order_id, amt, tax_calc, amt + tax_calc, CURRENT_DATE);
 
