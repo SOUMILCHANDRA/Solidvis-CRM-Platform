@@ -27,6 +27,7 @@ import DashboardView from './components/DashboardView';
 import CompaniesView from './components/CompaniesView';
 import OrdersView from './components/OrdersView';
 import InvoicesView from './components/InvoicesView';
+import EmployeesView from './components/EmployeesView';
 import AuthView from './components/AuthView';
 import NotificationSystem from './components/NotificationSystem';
 import ChatAssistant from './components/ChatAssistant';
@@ -254,6 +255,8 @@ export default function App() {
     { id: 'companies', label: 'CRM / Companies', icon: <Building2 size={20} /> },
     { id: 'orders', label: 'Orders & Products', icon: <ShoppingBag size={20} /> },
     { id: 'invoices', label: 'Invoices & Payments', icon: <Receipt size={20} /> },
+    { id: 'team', label: 'Team Management', icon: <Users size={20} /> },
+    { id: 'transactions', label: 'Txn Console', icon: <Sparkles size={20} /> },
   ];
 
   if (!session) {
@@ -382,6 +385,8 @@ export default function App() {
             {activeTab === 'companies' && <CompaniesView />}
             {activeTab === 'orders' && <OrdersView />}
             {activeTab === 'invoices' && <InvoicesView />}
+            {activeTab === 'team' && <EmployeesView />}
+            {activeTab === 'transactions' && <TransactionDemo />}
             {activeTab === 'transaction-demo' && <TransactionDemo />}
           </motion.div>
         </AnimatePresence>
