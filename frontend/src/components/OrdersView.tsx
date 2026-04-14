@@ -112,10 +112,10 @@ export default function OrdersView() {
     
     // Replace direct insert with RPC
     const { data, error } = await supabase.rpc('create_order_transaction', {
-        comp_id: Number(values.company_id),
-        rep_id: values.employee_id,
         amt: finalAmount,
-        line_items: currentProductsList // Pass the array of selected products
+        comp_id: Number(values.company_id),
+        line_items: currentProductsList,
+        rep_id: values.employee_id
     });
 
     if (error) {

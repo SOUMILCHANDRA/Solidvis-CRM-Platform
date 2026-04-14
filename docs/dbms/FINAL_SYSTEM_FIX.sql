@@ -51,10 +51,10 @@ END $$;
 
 -- 5. Atomic Transaction Function (STRICT VALIDATION)
 CREATE OR REPLACE FUNCTION create_order_transaction(
-    comp_id BIGINT,
-    rep_id UUID,
     amt NUMERIC,
-    line_items JSONB -- Added to handle products
+    comp_id BIGINT,
+    line_items JSONB,
+    rep_id TEXT -- Use TEXT for more robust RPC matching
 )
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -64,9 +64,13 @@ DECLARE
     gen_invoice_id VARCHAR(50);
     tax_calc NUMERIC;
     item JSONB;
+    v_rep_id UUID;
 BEGIN
+    -- Cast rep_id safely
+    v_rep_id := rep_id::UUID;
+
     -- DEBUG LOGGING
-    RAISE NOTICE 'Transaction amount received: %, Items count: %', amt, jsonb_array_length(line_items);
+    RAISE NOTICE 'Transaction amount: %, Items: %, Rep: %', amt, jsonb_array_length(line_items), rep_id;
 
     -- STRICT VALIDATION
     IF amt IS NULL OR amt <= 0 THEN
@@ -84,7 +88,7 @@ BEGIN
 
     -- 1. Insert into ORDERS table
     INSERT INTO orders (order_id, company_id, employee_id, order_type, status, order_date)
-    VALUES (gen_order_id, comp_id, rep_id, 'Transactional', 'Active', CURRENT_DATE);
+    VALUES (gen_order_id, comp_id, v_rep_id, 'Transactional', 'Active', CURRENT_DATE);
 
     -- 2. Insert into ORDER_DETAILS (Loop through products)
     FOR item IN SELECT * FROM jsonb_array_elements(line_items)
