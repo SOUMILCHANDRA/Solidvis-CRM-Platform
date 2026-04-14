@@ -214,7 +214,7 @@ export default function InvoicesView() {
                   <Cell key={`cell-${index}`} fill={entry.color} style={{ filter: `drop-shadow(0px 0px 10px ${entry.color})` }} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => `₹ ${value.toLocaleString()}`} contentStyle={{ background: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.1)' }} />
+              <Tooltip formatter={(value: any) => `₹ ${value.toLocaleString()}`} contentStyle={{ background: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.1)' }} />
             </PieChart>
           </ResponsiveContainer>
           {chartData.length > 0 && <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '10px' }}>

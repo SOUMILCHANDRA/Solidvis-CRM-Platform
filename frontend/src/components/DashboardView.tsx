@@ -156,7 +156,7 @@ export default function DashboardView() {
                   contentStyle={{ background: 'rgba(26, 26, 26, 0.9)', border: '1px solid #333', borderRadius: '12px', backdropFilter: 'blur(10px)' }}
                   itemStyle={{ color: '#00d2ff' }}
                 />
-                <Line type="monotone" dataKey="revenue" stroke="#00d2ff" strokeWidth={4} dot={{ r: 6, fill: '#00d2ff', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 10, shadow: '0 0 20px #00d2ff' }} />
+                <Line type="monotone" dataKey="revenue" stroke="#00d2ff" strokeWidth={4} dot={{ r: 6, fill: '#00d2ff', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 10 }} />
               </LineChart>
             </ResponsiveContainer>
           )}
