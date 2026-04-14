@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Card, message, Tag, Space } from 'antd';
 import { UserPlus, Users, Mail, Briefcase, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { motion } from 'framer-motion';
 
 const EmployeesView = () => {
-    const [employees, setEmployees] = useState([]);
+    const [employees, setEmployees] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
