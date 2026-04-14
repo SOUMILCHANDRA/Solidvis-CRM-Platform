@@ -25,7 +25,9 @@ VALUES
 ('Vikram Singh', 'Enterprise Solutions Lead', 'vikram@solidvis.com'),
 ('Ananya Gupta', 'Sales Coordinator', 'ananya@solidvis.com'),
 ('Siddharth Malhotra', 'Business Development Rep', 'siddharth@solidvis.com')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (email) DO UPDATE SET 
+  name = EXCLUDED.name,
+  role = EXCLUDED.role;
 
 -- 4. Adapt Orders table to support UUID Representatives (Migration)
 DO $$ 
