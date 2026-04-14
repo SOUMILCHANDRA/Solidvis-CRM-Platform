@@ -29,7 +29,7 @@ export default function OrdersView() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    let query = supabase.from('orders').select('*, employee(employee_name)').limit(100).order('order_date', { ascending: false });
+    let query = supabase.from('orders').select('*, team_members(name)').limit(100).order('order_date', { ascending: false });
 
     if (searchTerm) {
       query = query.ilike('order_id', `%${searchTerm}%`);
@@ -42,7 +42,7 @@ export default function OrdersView() {
         type: o.order_type,
         status: o.status,
         date: o.order_date,
-        emp: o.employee?.employee_name || 'System'
+        emp: o.team_members?.name || 'System'
       })));
     }
     setLoading(false);
@@ -111,7 +111,8 @@ export default function OrdersView() {
     
     // Replace direct insert with RPC
     const { data, error } = await supabase.rpc('create_order_transaction', {
-        comp_id: values.company_id,
+        comp_id: Number(values.company_id),
+        rep_id: values.employee_id,
         amt: finalAmount
     });
 

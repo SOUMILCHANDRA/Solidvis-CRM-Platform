@@ -8,6 +8,7 @@ DROP FUNCTION IF EXISTS create_order_transaction;
 -- STEP 2: CREATE BULLETPROOF FUNCTION
 CREATE OR REPLACE FUNCTION create_order_transaction(
     comp_id BIGINT,
+    rep_id UUID,
     amt NUMERIC
 )
 RETURNS TEXT
@@ -22,8 +23,11 @@ BEGIN
     END IF;
 
     -- INSERT ORDER
-    INSERT INTO orders (company_id, total_amount, created_at)
-    VALUES (comp_id, amt, NOW())
+    -- We assume the 'orders' table has a 'sales_rep_id' or 'employee_id' column that can take a UUID.
+    -- If your existing 'orders' table uses 'employee_id INT', you must run:
+    -- ALTER TABLE orders ALTER COLUMN employee_id TYPE UUID USING employee_id::text::uuid;
+    INSERT INTO orders (company_id, employee_id, total_amount, created_at)
+    VALUES (comp_id, rep_id, amt, NOW())
     RETURNING id INTO new_order_id;
 
     -- VERIFY ORDER INSERTED

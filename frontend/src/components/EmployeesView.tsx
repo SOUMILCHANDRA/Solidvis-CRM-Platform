@@ -20,11 +20,12 @@ const EmployeesView = () => {
             
             if (error) {
                 console.error("Team fetch error:", error);
+                message.error(`Failed to load sales representatives: ${error.message} (${error.code})`);
                 throw error;
             }
             setEmployees(data || []);
         } catch (error) {
-            message.error('Failed to load sales representatives');
+            // Error already logged and messaged
         } finally {
             setLoading(false);
         }
