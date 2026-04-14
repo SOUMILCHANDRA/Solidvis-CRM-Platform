@@ -7,7 +7,7 @@ DROP FUNCTION IF EXISTS create_order_transaction;
 
 -- STEP 2: CREATE BULLETPROOF FUNCTION
 CREATE OR REPLACE FUNCTION create_order_transaction(
-    comp_id UUID,
+    comp_id BIGINT,
     amt NUMERIC
 )
 RETURNS TEXT
