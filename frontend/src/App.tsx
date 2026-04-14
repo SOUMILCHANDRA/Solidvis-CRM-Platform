@@ -30,6 +30,8 @@ import InvoicesView from './components/InvoicesView';
 import AuthView from './components/AuthView';
 import NotificationSystem from './components/NotificationSystem';
 import ChatAssistant from './components/ChatAssistant';
+import TransactionDemo from './components/demos/TransactionDemo';
+
 import { supabase } from './lib/supabase';
 
 const FloatingParticles = () => (
@@ -160,6 +162,13 @@ export default function App() {
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Path detection for temporary routes (Academic Demo)
+  useEffect(() => {
+    if (window.location.pathname === '/transaction-demo' || window.location.hash === '#/transaction-demo') {
+      setActiveTab('transaction-demo');
+    }
   }, []);
 
   // Web Speech API for AI commands
@@ -373,6 +382,7 @@ export default function App() {
             {activeTab === 'companies' && <CompaniesView />}
             {activeTab === 'orders' && <OrdersView />}
             {activeTab === 'invoices' && <InvoicesView />}
+            {activeTab === 'transaction-demo' && <TransactionDemo />}
           </motion.div>
         </AnimatePresence>
       </div>
