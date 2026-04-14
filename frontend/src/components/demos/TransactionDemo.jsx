@@ -2,27 +2,29 @@ import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 
 const TransactionDemo = () => {
-  const [amount, setAmount] = useState(100);
-  const [status, setStatus] = useState(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState('00000000-0000-0000-0000-000000000000');
+  const [amountInput, setAmountInput] = useState(5000);
   const [loading, setLoading] = useState(false);
 
-  const runTransaction = async (amt) => {
+  const runTransaction = async () => {
     setLoading(true);
-    setStatus(null);
+    
     try {
-      // Academic Test: Calling the Supabase RPC Transaction
-      // comp_id is hardcoded to a valid one from the setup script for demo
       const { data, error } = await supabase.rpc('create_order_transaction', {
-        comp_id: 200000000079457,
-        amt: parseFloat(amt)
+        comp_id: selectedCompanyId,  // MUST EXIST IN DB
+        amt: parseFloat(amountInput)
       });
 
-      if (error) throw error;
-
-      setStatus({ type: 'success', message: '✓ Transaction Complete: Order and Invoice created successfully.' });
+      if (error) {
+        console.error(error);
+        alert("❌ Transaction Failed (Rollback Triggered)");
+      } else {
+        console.log(data);
+        alert("✅ Transaction Successful");
+      }
     } catch (err) {
       console.error(err);
-      setStatus({ type: 'error', message: `✗ Transaction Failed: ${err.message || 'Unknown error. Rollback triggered.'}` });
+      alert("❌ Transaction Failed (Rollback Triggered)");
     } finally {
       setLoading(false);
     }
@@ -32,23 +34,36 @@ const TransactionDemo = () => {
     <div style={{ padding: '40px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h1 style={{ color: '#2c3e50' }}>DBMS Transaction Demo</h1>
       <p style={{ color: '#7f8c8d', marginBottom: '30px' }}>
-        This module tests PostgreSQL ATOMICITY. If the transaction fails, no data is written to either the ORDERS or INVOICE tables.
+        This module tests PostgreSQL ATOMICITY. If the transaction fails, no data is written to either the orders or invoices tables.
       </p>
 
       <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+        
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Transaction Amount:</label>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Company ID (UUID):</label>
           <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            type="text"
+            value={selectedCompanyId}
+            onChange={(e) => setSelectedCompanyId(e.target.value)}
+            placeholder="Enter valid company UUID"
             style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
           />
-          <small style={{ color: '#666' }}>Enter a negative number to trigger a manual rollback.</small>
+          <small style={{ color: '#666' }}>Must refer to an existing UUID in the companies table.</small>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Transaction Amount:</label>
+          <input
+            type="number"
+            value={amountInput}
+            onChange={(e) => setAmountInput(e.target.value)}
+            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+          />
+          <small style={{ color: '#666' }}>Enter a negative number (e.g., -100) to trigger a manual rollback.</small>
         </div>
 
         <button
-          onClick={() => runTransaction(amount)}
+          onClick={runTransaction}
           disabled={loading}
           style={{
             width: '100%',
@@ -65,25 +80,13 @@ const TransactionDemo = () => {
           {loading ? 'Processing...' : 'Run Transaction Test'}
         </button>
 
-        {status && (
-          <div style={{
-            marginTop: '20px',
-            padding: '15px',
-            borderRadius: '8px',
-            backgroundColor: status.type === 'success' ? '#d4edda' : '#f8d7da',
-            color: status.type === 'success' ? '#155724' : '#721c24',
-            border: `1px solid ${status.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`
-          }}>
-            {status.message}
-          </div>
-        )}
       </div>
 
       <div style={{ marginTop: '40px', padding: '20px', borderTop: '1px solid #eee' }}>
-        <h3>Academic Note: ACID Compliance</h3>
-        <ul>
-          <li><strong>Success:</strong> Order record created + Invoice record created.</li>
-          <li><strong>Failure:</strong> If Amount &lt; 0, exception is thrown, rolling back the Order creation.</li>
+        <h3 style={{ color: '#333' }}>Academic Note: ACID Compliance</h3>
+        <ul style={{ color: '#555' }}>
+          <li><strong>Success:</strong> Order created + Invoice created atomically.</li>
+          <li><strong>Failure:</strong> If Amount &lt;= 0, Exception is thrown! EVERYTHING aborts and rolls back.</li>
         </ul>
       </div>
     </div>
