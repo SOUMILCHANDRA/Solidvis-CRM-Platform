@@ -14,9 +14,9 @@ const EmployeesView = () => {
         setLoading(true);
         try {
             const { data, error } = await supabase
-                .from('EMPLOYEE')
+                .from('team_members')
                 .select('*')
-                .order('employee_id', { ascending: false });
+                .order('id', { ascending: false });
             
             if (error) throw error;
             setEmployees(data || []);
@@ -36,10 +36,10 @@ const EmployeesView = () => {
         setLoading(true);
         try {
             const { error } = await supabase
-                .from('EMPLOYEE')
+                .from('team_members')
                 .insert([
                     { 
-                        employee_name: values.employee_name, 
+                        name: values.name, 
                         role: values.role, 
                         email: values.email 
                     }
@@ -59,11 +59,22 @@ const EmployeesView = () => {
         }
     };
 
+    const handleDelete = async (id: number) => {
+        try {
+            const { error } = await supabase.from('team_members').delete().eq('id', id);
+            if (error) throw error;
+            message.success('Member removed');
+            fetchEmployees();
+        } catch (err: any) {
+            message.error(err.message || 'Delete failed');
+        }
+    };
+
     const columns = [
         {
             title: 'Rep Name',
-            dataIndex: 'employee_name',
-            key: 'employee_name',
+            dataIndex: 'name',
+            key: 'name',
             render: (text: string) => <span style={{ fontWeight: 600, color: '#00d2ff' }}>{text}</span>,
         },
         {
@@ -89,15 +100,22 @@ const EmployeesView = () => {
         },
         {
             title: 'Internal ID',
-            dataIndex: 'employee_id',
-            key: 'employee_id',
+            dataIndex: 'id',
+            key: 'id',
             render: (id: number) => <Tag color="#333">REP-{id}</Tag>
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_: any, record: any) => (
+               <Button danger type="text" onClick={() => handleDelete(record.id)}>Delete</Button>
+            )
         }
     ];
 
     const filteredEmployees = employees.filter(emp => 
-        emp.employee_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.email.toLowerCase().includes(searchTerm.toLowerCase())
+        (emp.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (emp.email || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -145,7 +163,7 @@ const EmployeesView = () => {
                     dataSource={filteredEmployees} 
                     columns={columns} 
                     loading={loading}
-                    rowKey="employee_id"
+                    rowKey="id"
                     pagination={{ pageSize: 8 }}
                     className="custom-table"
                 />
@@ -162,7 +180,7 @@ const EmployeesView = () => {
             >
                 <Form form={form} layout="vertical" onFinish={handleAddEmployee}>
                     <Form.Item 
-                        name="employee_name" 
+                        name="name" 
                         label="Full Name" 
                         rules={[{ required: true, message: 'Please enter name' }]}
                     >
