@@ -256,7 +256,7 @@ export default function App() {
     { id: 'orders', label: 'Orders & Products', icon: <ShoppingBag size={20} /> },
     { id: 'invoices', label: 'Invoices & Payments', icon: <Receipt size={20} /> },
     { id: 'team', label: 'Team Management', icon: <Users size={20} /> },
-    { id: 'transactions', label: 'Txn Console', icon: <Sparkles size={20} /> },
+    { id: 'transactions', label: 'Transaction Testing', icon: <Sparkles size={20} /> },
   ];
 
   if (!session) {
