@@ -32,9 +32,9 @@ const TransactionDemo = () => {
 
   return (
     <div style={{ padding: '40px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1 style={{ color: 'white' }}>DBMS Transaction Demo</h1>
+      <h1 style={{ color: 'white' }}>Transaction Verification System</h1>
       <p style={{ color: '#aaa', marginBottom: '30px' }}>
-        This module tests PostgreSQL ATOMICITY. If the transaction fails, no data is written to either the orders or invoices tables.
+        Verified system for testing PostgreSQL ATOMICITY. All operations are executed atomically to ensure data integrity.
       </p>
 
       <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
@@ -61,7 +61,7 @@ const TransactionDemo = () => {
             placeholder="e.g. 5000"
             style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', color: 'black', background: '#f3f4f6' }}
           />
-          <small style={{ color: '#666' }}>Enter a negative number (e.g., -100) to trigger a manual rollback.</small>
+          <small style={{ color: '#666' }}>All operations are executed atomically.</small>
         </div>
 
         <button
@@ -85,13 +85,7 @@ const TransactionDemo = () => {
 
       </div>
 
-      <div style={{ marginTop: '40px', padding: '20px', borderTop: '1px solid #333' }}>
-        <h3 style={{ color: 'white' }}>Academic Note: ACID Compliance</h3>
-        <ul style={{ color: '#aaa' }}>
-          <li><strong>Success:</strong> Order created + Invoice created atomically.</li>
-          <li><strong>Failure:</strong> If Amount &lt;= 0, Exception is thrown! EVERYTHING aborts and rolls back.</li>
-        </ul>
-      </div>
+
     </div>
   );
 };

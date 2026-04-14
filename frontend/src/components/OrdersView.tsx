@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, Calendar, Search, Plus, Trash2 } from 'lucide-react';
-import { Spin, Input, Button, Modal, Form, Select, InputNumber, message, Space } from 'antd';
+import { Spin, Input, Button, Modal, Form, Select, InputNumber, message, Space, Switch } from 'antd';
 import { supabase } from '../lib/supabase';
 
 const { Option } = Select;
@@ -18,6 +18,10 @@ export default function OrdersView() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [form] = Form.useForm();
+  
+  // Pricing State
+  const [useOverride, setUseOverride] = useState(false);
+  const [overrideAmount, setOverrideAmount] = useState<number | null>(null);
   
   const [companies, setCompanies] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
@@ -84,7 +88,7 @@ export default function OrdersView() {
         const { data: cData } = await supabase.from('company').select('company_id, company_name');
         if (cData) setCompanies(cData);
         
-        const { data: eData } = await supabase.from('employee').select('employee_id, employee_name');
+        const { data: eData } = await supabase.from('team_members').select('id, name');
         if (eData) setEmployees(eData);
         
         const { data: pData } = await supabase.from('product').select('product_id, product_name');
@@ -93,20 +97,27 @@ export default function OrdersView() {
   };
 
   const handleCreateOrder = async (values: any) => {
+    // Validation
+    const currentProductsList = values.products || [];
+    const calculatedTotal = currentProductsList.reduce((sum: number, p: any) => sum + (Number(p?.price) || 0), 0);
+    const finalAmount = useOverride ? (overrideAmount || 0) : calculatedTotal;
+
+    if (!values.company_id || !values.employee_id || finalAmount <= 0) {
+        message.warning("Please ensure Company, Sales Rep are selected and Amount is > 0");
+        return;
+    }
+
     setFormLoading(true);
     
-    // Calculate total amount from products
-    const currentProductsList = values.products || [];
-    const totalBill = currentProductsList.reduce((sum: number, p: any) => sum + (Number(p?.price) || 0), 0);
-
     // Replace direct insert with RPC
     const { data, error } = await supabase.rpc('create_order_transaction', {
         comp_id: values.company_id,
-        amt: totalBill > 0 ? totalBill : 0
+        amt: finalAmount
     });
 
     if (error) {
-        message.error(`Transaction failed, rollback triggered: ${error.message}`);
+        console.error("Transaction Error:", error);
+        message.error(`Transaction failed. No data saved: ${error.message}`);
         setFormLoading(false);
         return;
     }
@@ -114,6 +125,8 @@ export default function OrdersView() {
     message.success(`Order + Invoice created successfully via Atomic Transaction!`);
     setIsModalVisible(false);
     form.resetFields();
+    setUseOverride(false);
+    setOverrideAmount(null);
     fetchOrders(); // Refresh table instantly
     setFormLoading(false);
   };
@@ -238,7 +251,7 @@ export default function OrdersView() {
                 </Form.Item>
                 <Form.Item name="employee_id" label="Sales Representative" rules={[{ required: true }]} >
                     <Select placeholder="Assign Representative...">
-                        {employees.map(e => <Option key={e.employee_id} value={e.employee_id}>{e.employee_name}</Option>)}
+                        {employees.map(e => <Option key={e.id} value={e.id}>{e.name}</Option>)}
                     </Select>
                 </Form.Item>
             </div>
@@ -331,19 +344,60 @@ export default function OrdersView() {
             <Form.Item shouldUpdate>
                 {() => {
                     const currentProductsList = form.getFieldValue('products') || [];
-                    const totalBill = currentProductsList.reduce((sum: number, p: any) => sum + (Number(p?.price) || 0), 0);
+                    const calculatedTotal = currentProductsList.reduce((sum: number, p: any) => sum + (Number(p?.price) || 0), 0);
                     return (
-                        <div style={{ margin: '15px 0 25px', padding: '15px', background: 'rgba(0, 210, 255, 0.05)', borderRadius: '10px', border: '1px solid rgba(0, 210, 255, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ color: '#ccc', fontSize: '16px' }}>Total Projected Invoice Value:</span>
-                            <span style={{ fontSize: '24px', fontWeight: 800, color: '#00d2ff' }}>₹ {totalBill.toLocaleString()}</span>
+                        <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                <span style={{ color: '#ccc' }}>Calculated Total:</span>
+                                <span style={{ fontSize: '18px', fontWeight: 600, color: 'white' }}>₹ {calculatedTotal.toLocaleString()}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                <span style={{ color: '#ccc' }}>Override Total Amount</span>
+                                <Switch checked={useOverride} onChange={setUseOverride} />
+                            </div>
+
+                            {useOverride && (
+                                <div style={{ marginBottom: '15px' }}>
+                                    <InputNumber 
+                                        placeholder="Enter custom amount" 
+                                        style={{ width: '100%' }} 
+                                        min={1}
+                                        value={overrideAmount}
+                                        onChange={setOverrideAmount}
+                                    />
+                                    <p style={{ color: '#00d2ff', fontSize: '12px', marginTop: '5px' }}>
+                                        Override Total: ₹{(overrideAmount || 0).toLocaleString()} (used for transaction)
+                                    </p>
+                                </div>
+                            )}
+
+                            <div style={{ marginTop: '15px', padding: '15px', background: 'rgba(0, 210, 255, 0.05)', borderRadius: '10px', border: '1px solid rgba(0, 210, 255, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: '#ccc', fontSize: '14px' }}>Final Atomic Transaction Value:</span>
+                                <span style={{ fontSize: '24px', fontWeight: 800, color: '#00d2ff' }}>
+                                    ₹ {(useOverride ? (overrideAmount || 0) : calculatedTotal).toLocaleString()}
+                                </span>
+                            </div>
                         </div>
                     );
                 }}
             </Form.Item>
             
             <Form.Item style={{ marginTop: '20px' }}>
-                <Button type="primary" htmlType="submit" loading={formLoading} style={{ width: '100%', background: 'linear-gradient(90deg, #00d2ff, #9b59b6)', border: 'none', height: '40px', fontSize: '16px' }}>
-                    Push Native Order + Products
+                <Button 
+                    type="primary" 
+                    htmlType="submit" 
+                    loading={formLoading} 
+                    style={{ 
+                        width: '100%', 
+                        background: 'linear-gradient(90deg, #00d2ff, #9b59b6)', 
+                        border: 'none', 
+                        height: '45px', 
+                        fontSize: '16px',
+                        fontWeight: '600'
+                    }}
+                >
+                    Create Order (Atomic)
                 </Button>
             </Form.Item>
         </Form>
