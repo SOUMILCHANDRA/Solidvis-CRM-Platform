@@ -20,6 +20,7 @@ import {
   Users 
 } from 'lucide-react';
 import { message } from 'antd';
+import { Analytics } from '@vercel/analytics/react';
 import './index.css';
 
 // Importing views (to be created)
@@ -395,6 +396,7 @@ export default function App() {
       <AnimatePresence>
         {isChatOpen && <ChatAssistant onClose={() => setIsChatOpen(false)} />}
       </AnimatePresence>
+      <Analytics />
     </div>
   );
 }
