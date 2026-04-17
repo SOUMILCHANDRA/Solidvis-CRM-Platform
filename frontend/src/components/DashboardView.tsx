@@ -46,29 +46,31 @@ export default function DashboardView() {
   useEffect(() => {
     const fetchLiveStats = async () => {
       try {
-        // Parallel fetching for performance vs large tables
-        const [ companiesRes, ordersRes, invoicesRes, timelineRes ] = await Promise.all([
-          supabase.from('company').select('*', { count: 'planned', head: true }),
-          supabase.from('orders').select('*', { count: 'planned', head: true }),
-          supabase.from('invoice').select('*', { count: 'planned', head: true }),
-          supabase.from('invoice')
+        setLoading(true);
+        
+        // Use our new RPC for accurate, high-performance stats over 500k+ records
+        const { data: statsData, error: statsError } = await supabase.rpc('get_dashboard_stats');
+        
+        // Separate call for timeline (recent invoices) as it requires joins
+        const { data: recentInvoices, error: timelineError } = await supabase.from('invoice')
             .select('*, orders(company(company_name))')
             .order('invoice_date', { ascending: false })
-            .limit(5)
-        ]);
+            .limit(5);
 
-        const { count: companyCount } = companiesRes;
-        const { count: ordersCount } = ordersRes;
-        const { count: invoiceCount } = invoicesRes;
-        const { data: recentInvoices } = timelineRes;
+        if (statsError) throw statsError;
 
-        const estimatedRevenue = (invoiceCount || 0) * 118000;
+        const {
+          company_count,
+          order_count,
+          invoice_count,
+          total_revenue
+        } = statsData;
 
         setStats([
-          { title: 'Total Revenue', value: estimatedRevenue, icon: <DollarSign size={24} color="#00d2ff" />, prefix: '₹' },
-          { title: 'Total Orders', value: ordersCount || 0, icon: <ShoppingBag size={24} color="#9b59b6" />, prefix: '' },
-          { title: 'Registered Companies', value: companyCount || 0, icon: <Users size={24} color="#2ecc71" />, prefix: '' },
-          { title: 'Total Invoices', value: invoiceCount || 0, icon: <FileText size={24} color="#f1c40f" />, prefix: '' },
+          { title: 'Total Revenue', value: total_revenue || 0, icon: <DollarSign size={24} color="#00d2ff" />, prefix: '₹' },
+          { title: 'Total Orders', value: order_count || 0, icon: <ShoppingBag size={24} color="#9b59b6" />, prefix: '' },
+          { title: 'Registered Companies', value: company_count || 0, icon: <Users size={24} color="#2ecc71" />, prefix: '' },
+          { title: 'Total Invoices', value: invoice_count || 0, icon: <FileText size={24} color="#f1c40f" />, prefix: '' },
         ]);
 
         if (recentInvoices) {
@@ -89,6 +91,20 @@ export default function DashboardView() {
         }
       } catch (error) {
         console.error("Critical Dashboard Telemetry Error:", error);
+        // Fallback to legacy count if RPC isn't deployed yet
+        const [ companiesRes, ordersRes, invoicesRes ] = await Promise.all([
+          supabase.from('company').select('*', { count: 'exact', head: true }),
+          supabase.from('orders').select('*', { count: 'exact', head: true }),
+          supabase.from('invoice').select('*', { count: 'exact', head: true })
+        ]);
+        
+        const invoiceCount = invoicesRes.count || 0;
+        setStats([
+          { title: 'Total Revenue (Est)', value: invoiceCount * 118000, icon: <DollarSign size={24} color="#00d2ff" />, prefix: '₹' },
+          { title: 'Total Orders', value: ordersRes.count || 0, icon: <ShoppingBag size={24} color="#9b59b6" />, prefix: '' },
+          { title: 'Registered Companies', value: companiesRes.count || 0, icon: <Users size={24} color="#2ecc71" />, prefix: '' },
+          { title: 'Total Invoices', value: invoiceCount, icon: <FileText size={24} color="#f1c40f" />, prefix: '' },
+        ]);
       } finally {
         setLoading(false);
       }

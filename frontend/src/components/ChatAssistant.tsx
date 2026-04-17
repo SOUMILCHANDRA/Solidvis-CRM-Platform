@@ -48,9 +48,14 @@ export default function ChatAssistant({ onClose }: { onClose: () => void }) {
          const { count } = await supabase.from('payment').select('*', { count: 'exact', head: true }).eq('payment_status', 'PENDING');
          response = `I've flagged ${count} invoices as 'High Risk' due to pending payment status. I recommend immediate follow-up via Finance operations.`;
       } else if (query.includes('revenue') || query.includes('money')) {
-        const { count } = await supabase.from('invoice').select('*', { count: 'exact', head: true });
-        const revenue = (count || 0) * 118000;
-        response = `Total projected revenue from across the ecosystem is approximately ₹ ${revenue.toLocaleString()}. (Calculated from ${count} invoices)`;
+        const { data: statsData, error } = await supabase.rpc('get_dashboard_stats');
+        if (!error && statsData) {
+            response = `Total enterprise revenue aggregated across the network is ₹ ${statsData.total_revenue.toLocaleString()}. This reflects ${statsData.order_count} active orders.`;
+        } else {
+            const { count } = await supabase.from('invoice').select('*', { count: 'exact', head: true });
+            const revenue = (count || 0) * 118000;
+            response = `Total projected revenue from across the ecosystem is approximately ₹ ${revenue.toLocaleString()}. (Estimated from ${count} invoices)`;
+        }
       } else if (query.includes('company') || query.includes('client')) {
         const { data } = await supabase.from('company').select('company_name').limit(3);
         const names = data?.map(d => d.company_name).join(', ');
