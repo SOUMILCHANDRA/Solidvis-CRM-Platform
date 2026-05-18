@@ -8,7 +8,7 @@
 ![Vercel](https://img.shields.io/badge/Deployed-Vercel-black?style=for-the-badge\&logo=vercel)
 ![Status](https://img.shields.io/badge/Status-Production-brightgreen?style=for-the-badge)
 
-> **A production-ready CRM platform designed for handling large-scale datasets (500k+ records) with real-time synchronization and sub-second query performance.**
+> **A production-ready  CRM platform designed for handling large-scale datasets (500k+ records) with real-time synchronization and sub-second query performance.**
 
 ---
 
